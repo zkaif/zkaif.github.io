@@ -1,4 +1,66 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-12-30T14:05:20+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">Java虚拟机到底虚拟了什么</title><link href="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88" rel="alternate" type="text/html" title="Java虚拟机到底虚拟了什么" /><published>2020-04-18T00:00:00+08:00</published><updated>2020-04-18T00:00:00+08:00</updated><id>/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88</id><content type="html" xml:base="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88">&lt;p&gt;最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-12-30T14:29:25+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">关于财务业务模型的思考</title><link href="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83" rel="alternate" type="text/html" title="关于财务业务模型的思考" /><published>2020-04-27T00:00:00+08:00</published><updated>2020-04-27T00:00:00+08:00</updated><id>/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83</id><content type="html" xml:base="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83">&lt;p&gt;之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。&lt;/p&gt;
+
+&lt;h2 id=&quot;基本模型&quot;&gt;基本模型&lt;/h2&gt;
+
+&lt;h3 id=&quot;组织&quot;&gt;组织&lt;/h3&gt;
+
+&lt;p&gt;在财务中，会计并不关心这个组织是做什么的，在财务系统开发中我们将门店 仓库 供应商等统称为组织这种级别的组织我们称之为3级组织
+对于国家税务局来说，他并不关系每个一级组织的情况，他们所关系的是分公司公司及2级组织和1级组织
+为了统一模型我们给每个公司建立一个虚拟子公司称之为本部子公司
+以上说的公司就是子公司，总公司其实只是子公司的股东，在这套模型中作为对外投资关联
+对于其他不完整的组织我们通过虚拟的方式使其变得完整&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/20200427230657238.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;交易&quot;&gt;交易&lt;/h3&gt;
+
+&lt;p&gt;这里先忘记之前的交易的理解
+我们这里的交易是指：两个组织之间发生的某种行为，这种行为涉及到双方资产与负债的变动，交易发生在3级组织之间，
+我们之所以将交易的发生放在3级组织是应为现实生活中可是是去门店购买，大客户可由仓库发货，并不是分公司，但是3级组织作为2级组织的一部分在最总汇总时可以被归属到某个2级组织甚至1级组织
+门店仓库这些不同类型是组织的一个tag，组织可以同时拥有多个tag&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/202004272308004.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;单据&quot;&gt;单据&lt;/h3&gt;
+
+&lt;p&gt;在交易的过程中会出现一些文件信息用于记录交易这样行为的发生过程，这种文件信息我们称之为单据
+像仓库间调拨，销售，验收，这些我们都称之为单据，发票作为一种特殊的单据也是单据的一种&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/2020042723085382.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;交易模型&quot;&gt;交易模型&lt;/h3&gt;
+
+&lt;p&gt;交易的行为是可以被枚举的我们提前确定这个交易的过程，定义为交易模型
+交易模型确认交易过程是如何发生的，产生什么单据，交易过程可以用于几级组织
+整个交易的过程按照交易模板预先设置好的去执行&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/20200427230929632.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;交易模板确定什么组织和什么组织之间可以发生什么交易通过组织tag确定&lt;/p&gt;
+
+&lt;h2 id=&quot;业务视图举例说明&quot;&gt;业务视图（举例说明）&lt;/h2&gt;
+
+&lt;h3 id=&quot;定义&quot;&gt;定义&lt;/h3&gt;
+
+&lt;p&gt;业务视图是在基本模型之上对于各种数据的处理过后生成的某种数据视图–报表
+视图单据可以以来其他视图单据
+处理过程包括人工审核等
+直接视图是指不经过任何处理就生成的业务视图，如业务要看门店A的销售情况，可以直接查看基础模型的销售单，这个销售单在业务视图的展示需要通过直接视图进行展示
+举例：如结算单，对账单，凭证&lt;/p&gt;
+
+&lt;h3 id=&quot;结算单&quot;&gt;结算单&lt;/h3&gt;
+
+&lt;p&gt;结算单的业务用途，结算某个子公司和供应商之间的会计期间的账务
+描述过程为：通过某个子公司和某个供应商的预付款、发票、费用单、对账单进行结算，最终生成预付款单据视图
+财务调整是结算单的一个处理过程
+预付款和发票是基本模型中的数据
+最后一个对账单是另一个业务视图，我们现在看来看一下&lt;/p&gt;
+
+&lt;h3 id=&quot;对账单&quot;&gt;对账单&lt;/h3&gt;
+
+&lt;p&gt;对账单是用于某个子公司和供应商之间的结算过程，最终生成结算单
+对账单利用验收单，退货单，补救单这3个基础数据生成子公司和供应商之间的对账单
+最终对账单提供给结算单支撑&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务" /><summary type="html">之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。</summary></entry><entry><title type="html">Java虚拟机到底虚拟了什么</title><link href="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88" rel="alternate" type="text/html" title="Java虚拟机到底虚拟了什么" /><published>2020-04-18T00:00:00+08:00</published><updated>2020-04-18T00:00:00+08:00</updated><id>/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88</id><content type="html" xml:base="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88">&lt;p&gt;最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。&lt;/p&gt;
 &lt;h3 id=&quot;可执行文件与class文件&quot;&gt;可执行文件与Class文件&lt;/h3&gt;
 &lt;h5 id=&quot;我们先来看一段汇编代码&quot;&gt;我们先来看一段汇编代码&lt;/h5&gt;
 &lt;p&gt;Hello, OS world!程序：&lt;/p&gt;
@@ -115,16 +177,34 @@ SourceFile: &quot;Test.java&quot;
 
 &lt;p&gt;有的人可能会觉得一段C代码的入口也是main函数为什么JVM不是类比一个操作系统呢？首先C代码中的main入口是提供给操作系统调用的，因为操作系统的本质是一个硬件的管理功能，JVM中的一些功能是类似于操作系统的功能，比如GC，但是本文不对这些功能做讲解是为了更好的体现JVM的本质（实际上，在阅读JVM规范的时候你会发现文档中很少有提及这些类似于操作系统的功能，像垃圾回收这些相关的文档可能需要去阅读各虚拟机的具体实现的文档如HotSpot，因为它们不是必须的）&lt;/p&gt;
 &lt;h3 id=&quot;cpu结构与jvm结构&quot;&gt;CPU结构与JVM结构&lt;/h3&gt;
-&lt;p&gt;&lt;img src=&quot;../img/aHR0cHM6Ly90aW1nc2EuYmFpZHUuY29tL3RpbWc_aW1hZ2UmcXVhbGl0eT04MCZzaXplPWI5OTk5XzEwMDAwJnNlYz0xNTg3MTk0Njg4NDg1JmRpPWRmOTM2NjIxZTEzMWYzMWI3OTgzYWZjYzAxYzA0ZWZiJmltZ3R5cGU9MCZzcmM9aHR0cDovL2dzczAuYmFpZHUuY29tLzk0bzNkU2FnX3hJNGtoR2tvOVdUQW5GNmh.jpeg&quot; alt=&quot;在这里插入图片描述&quot; /&gt;
-这是我在网络上找的一个图片8086CPU的内部结构，我们试着解释一段汇编的代码&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/aHR0cHM6Ly90aW1nc2EuYmFpZHUuY29tL3RpbWc_aW1hZ2UmcXVhbGl0eT04MCZzaXplPWI5OTk5XzEwMDAwJnNlYz0xNTg3MTk0Njg4NDg1JmRpPWRmOTM2NjIxZTEzMWYzMWI3OTgzYWZjYzAxYzA0ZWZiJmltZ3R5cGU9MCZzcmM9aHR0cDovL2dzczAuYmFpZHUuY29tLzk0bzNkU2FnX3hJNGtoR2tvOVdUQW5GNmh.jpeg&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这是我在网络上找的一个图片8086CPU的内部结构，我们试着解释一段汇编的代码&lt;/p&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    mov ax, cs //将寄存器cs的值传送到ax
     mov ds, ax//将寄存器ax的值传送到ds
     mov es, ax//将寄存器ax的值传送到es
     call DispStr//调用DispStr
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;其实这些CPU的指令都是做着这些非常基本的工作，移动某个寄存器的数据到另一个地方，从某个设备读取数据    ![在这里插入图片描述](../img/20200418150152507.png) 我先不去管本文中不关心的部分 主要来看一下程序计数器和虚拟机栈（堆内存更像是一台计算机的主存） 我们知道程序计数器是一个线程私有的区域它主要用于表示当前执行到哪条指令，类似的功能在8086CPU上可以通过段地址寄存器加上IP寄存器或者某个偏移量 ![在这里插入图片描述](../img/20200418143732575.png) 图中的部分最终输出的20地址就是JVM中程序计数器的工作 再来看虚拟机栈的内容 ![在这里插入图片描述](../img/20200418144805313.png) 每次JAVA的方法调用都会产生一个栈针（实际上栈针的概念类似与CPU相应中断的时候保存上下文执行完中断后再返回的步骤），栈针不仅包含图中的信息但是我们目前关系的仅仅是操作数栈，JVM的指令基本都是通过操作数栈实现的，这里和CPU的结构有点不太一样，其实只是两种设计而已，他们实现相同的功能。
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;其实这些CPU的指令都是做着这些非常基本的工作，移动某个寄存器的数据到另一个地方，从某个设备读取数据
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/20200418150152507.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我先不去管本文中不关心的部分
+主要来看一下程序计数器和虚拟机栈（堆内存更像是一台计算机的主存）
+我们知道程序计数器是一个线程私有的区域它主要用于表示当前执行到哪条指令，类似的功能在8086CPU上可以通过段地址寄存器加上IP寄存器或者某个偏移量&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/20200418143732575.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图中的部分最终输出的20地址就是JVM中程序计数器的工作
+再来看虚拟机栈的内容&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/20200418144805313.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;每次JAVA的方法调用都会产生一个栈针（实际上栈针的概念类似与CPU相应中断的时候保存上下文执行完中断后再返回的步骤），栈针不仅包含图中的信息但是我们目前关系的仅仅是操作数栈，JVM的指令基本都是通过操作数栈实现的，这里和CPU的结构有点不太一样，其实只是两种设计而已，他们实现相同的功能。&lt;/p&gt;
 
 &lt;p&gt;比如在CPU中我们可以用ADD指令进行加法运算&lt;/p&gt;
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	add ax,bx//将ax寄存器的值加上bx寄存器的值在赋值给ax
@@ -135,4 +215,14 @@ SourceFile: &quot;Test.java&quot;
 &lt;p&gt;JVM的执行引擎类似与运算器和寄存器，但是他们采用了不同的实现。&lt;/p&gt;
 
 &lt;h3 id=&quot;总结&quot;&gt;总结&lt;/h3&gt;
-&lt;p&gt;JVM的本质其实是一个可以更具特定指令进行特定数据操作的程序，它使用软件模拟实现CPU中逻辑电路实现的基本指令功能，Java语言通过编译器将代码编译成这些最基本的二进制指令来告诉这个程序如何操作特定内存模型中的数据，通过对基本指令的组合实现一个较为复杂的方法，再通过对较为复杂方法的组合实现一个特定功能，业务就是这样被实现的。&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="JVM" /><summary type="html">最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。 可执行文件与Class文件 我们先来看一段汇编代码 Hello, OS world!程序： org 07c00h mov ax, cs mov ds, ax mov es, ax call DispStr jmp $ DispStr: mov ax, BootMessage mov bp, ax mov cx, 16 mov ax, 01301h mov bx, 000ch mov dl, 0 int 10h ret BootMessage: db &quot;Hello, OS world!&quot; times 510-($-$$) db 0 dw 0xaa55 这段代码是在用于计算机的引导扇区中的，我们将它编译后保存在硬盘的引导扇区上让后设置BIOS从该硬盘启动，就会执行这段代码，在显示器上输出一个“Hello, OS world!”。</summary></entry></feed>
+&lt;p&gt;JVM的本质其实是一个可以更具特定指令进行特定数据操作的程序，它使用软件模拟实现CPU中逻辑电路实现的基本指令功能，Java语言通过编译器将代码编译成这些最基本的二进制指令来告诉这个程序如何操作特定内存模型中的数据，通过对基本指令的组合实现一个较为复杂的方法，再通过对较为复杂方法的组合实现一个特定功能，业务就是这样被实现的。&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="JVM" /><summary type="html">最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。 可执行文件与Class文件 我们先来看一段汇编代码 Hello, OS world!程序： org 07c00h mov ax, cs mov ds, ax mov es, ax call DispStr jmp $ DispStr: mov ax, BootMessage mov bp, ax mov cx, 16 mov ax, 01301h mov bx, 000ch mov dl, 0 int 10h ret BootMessage: db &quot;Hello, OS world!&quot; times 510-($-$$) db 0 dw 0xaa55 这段代码是在用于计算机的引导扇区中的，我们将它编译后保存在硬盘的引导扇区上让后设置BIOS从该硬盘启动，就会执行这段代码，在显示器上输出一个“Hello, OS world!”。</summary></entry><entry><title type="html">关于售后业务的思考</title><link href="/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83" rel="alternate" type="text/html" title="关于售后业务的思考" /><published>2020-04-18T00:00:00+08:00</published><updated>2020-04-18T00:00:00+08:00</updated><id>/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83</id><content type="html" xml:base="/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83">&lt;h3 id=&quot;背景&quot;&gt;背景&lt;/h3&gt;
+&lt;p&gt;这两周为公司开发一个售后功能，开发完成后带来的思考
+关于售后单创建流程的思考：
+在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用&lt;/p&gt;
+
+&lt;p&gt;其中我们可以发现对于售后业务必然存在商家、买家、订单，不过不同的商家和订单类型会带来不同的售后流程，发起时间等等。这时我们可以梳理出一个售后的基本工作，这里我个人不会考虑售后单应该有什么功能什么字段，而是售后业务需要什么，我们的售后单作为一种记录能否支撑该业务。这里的支撑也包含可扩展性。——即解决一个问题我们需要一个什么样的售后单&lt;/p&gt;
+
+&lt;p&gt;现在如何抽象一个售后单，让我们把重点放到售后业务本身，而不是售后单。快递、生鲜他们都是对于某次交易中不满意商品的协商处理过程。这两个业务场景中售后仅能对单个商品发起，但是并不是所有售后业务都是单商品售后，这让他们之间多了一些其他售后流程没有的共性，即单商品售后流程，代码实现上我们就可以抽象出一个最抽象的父类售后单，抽象类单商品售后单，然后才是快递售后单和生鲜售后单。售后流程中的各种操作过程作为售后单的方法被编码。其他视角其实也是相同的。另外从更广的角度来说对各种单据的抽象可以是的售后单被归类到某种单据的实现中去——抽象一个售后单&lt;/p&gt;
+
+&lt;h3 id=&quot;总结&quot;&gt;总结&lt;/h3&gt;
+&lt;p&gt;在面对这样的业务时，容易犯错就是将关注点本身放到售后单本身而不是售后业务本身，容易忽略一个事情就是，售后单本质上是现实生活中的人们为了更好的进行售后，而将售后业务抽象后产生的某种产物，售后单本身已经为我们实现售后功能做了很多工作，但是千万不能忘记一点，把关注点放到业务而不是数据，像售后单的状态代表的是当前售后处在什么环节，而不是真的表示这个售后单是什么状态。&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务" /><summary type="html">背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用</summary></entry></feed>

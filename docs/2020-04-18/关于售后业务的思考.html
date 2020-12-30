@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>关于售后业务的思考 | Kaifan&amp;Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="关于售后业务的思考" />
+<meta name="author" content="凯帆" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用" />
+<meta property="og:description" content="背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用" />
+<link rel="canonical" href="/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83" />
+<meta property="og:url" content="/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83" />
+<meta property="og:site_name" content="Kaifan&amp;Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-18T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="关于售后业务的思考" />
+<script type="application/ld+json">
+{"url":"/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83","headline":"关于售后业务的思考","dateModified":"2020-04-18T00:00:00+08:00","datePublished":"2020-04-18T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83"},"author":{"@type":"Person","name":"凯帆"},"description":"背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"/>
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"> -->
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Kaifan&amp;Blog" />
+
+  <!-- Google Analytics-->
+  
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Kaifan&Blog</h2>
+    </a>
+    <ul>
+      <li><a href="/">博客</a></li>
+      <li><a href="/tags">标签</a></li>
+      <li><a href="/about">联系</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        凯帆
+    
+
+    
+      <br>
+      <span>发布于&nbsp;</span><time datetime="2020-04-18 00:00:00 +0800">2020年04月18日</time>
+    
+  </div>
+
+  <h1 class="post-title">关于售后业务的思考</h1>
+  <div class="post-line"></div>
+
+  <h3 id="背景">背景</h3>
+<p>这两周为公司开发一个售后功能，开发完成后带来的思考
+关于售后单创建流程的思考：
+在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用</p>
+
+<p>其中我们可以发现对于售后业务必然存在商家、买家、订单，不过不同的商家和订单类型会带来不同的售后流程，发起时间等等。这时我们可以梳理出一个售后的基本工作，这里我个人不会考虑售后单应该有什么功能什么字段，而是售后业务需要什么，我们的售后单作为一种记录能否支撑该业务。这里的支撑也包含可扩展性。——即解决一个问题我们需要一个什么样的售后单</p>
+
+<p>现在如何抽象一个售后单，让我们把重点放到售后业务本身，而不是售后单。快递、生鲜他们都是对于某次交易中不满意商品的协商处理过程。这两个业务场景中售后仅能对单个商品发起，但是并不是所有售后业务都是单商品售后，这让他们之间多了一些其他售后流程没有的共性，即单商品售后流程，代码实现上我们就可以抽象出一个最抽象的父类售后单，抽象类单商品售后单，然后才是快递售后单和生鲜售后单。售后流程中的各种操作过程作为售后单的方法被编码。其他视角其实也是相同的。另外从更广的角度来说对各种单据的抽象可以是的售后单被归类到某种单据的实现中去——抽象一个售后单</p>
+
+<h3 id="总结">总结</h3>
+<p>在面对这样的业务时，容易犯错就是将关注点本身放到售后单本身而不是售后业务本身，容易忽略一个事情就是，售后单本质上是现实生活中的人们为了更好的进行售后，而将售后业务抽象后产生的某种产物，售后单本身已经为我们实现售后功能做了很多工作，但是千万不能忘记一点，把关注点放到业务而不是数据，像售后单的状态代表的是当前售后处在什么环节，而不是真的表示这个售后单是什么状态。</p>
+
+</div>
+
+
+
+<div class="pagination">
+  
+    <a href="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83" class="left arrow">&#8592;上一篇</a>
+  
+  
+    <a href="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88" class="right arrow">下一篇&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <footer>
+  <span>
+    &copy; <time datetime="2020-12-30 14:29:25 +0800">2020</time> 凯帆. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer>
+
+  </body>
+</html>

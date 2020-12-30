@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Java虚拟机到底虚拟了什么" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","url":"/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88","headline":"Java虚拟机到底虚拟了什么","dateModified":"2020-04-18T00:00:00+08:00","datePublished":"2020-04-18T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88"},"author":{"@type":"Person","name":"凯帆"},"description":"最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。 可执行文件与Class文件 我们先来看一段汇编代码 Hello, OS world!程序： org 07c00h mov ax, cs mov ds, ax mov es, ax call DispStr jmp $ DispStr: mov ax, BootMessage mov bp, ax mov cx, 16 mov ax, 01301h mov bx, 000ch mov dl, 0 int 10h ret BootMessage: db &quot;Hello, OS world!&quot; times 510-($-$$) db 0 dw 0xaa55 这段代码是在用于计算机的引导扇区中的，我们将它编译后保存在硬盘的引导扇区上让后设置BIOS从该硬盘启动，就会执行这段代码，在显示器上输出一个“Hello, OS world!”。","@context":"https://schema.org"}</script>
+{"url":"/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88","headline":"Java虚拟机到底虚拟了什么","dateModified":"2020-04-18T00:00:00+08:00","datePublished":"2020-04-18T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88"},"author":{"@type":"Person","name":"凯帆"},"description":"最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。 可执行文件与Class文件 我们先来看一段汇编代码 Hello, OS world!程序： org 07c00h mov ax, cs mov ds, ax mov es, ax call DispStr jmp $ DispStr: mov ax, BootMessage mov bp, ax mov cx, 16 mov ax, 01301h mov bx, 000ch mov dl, 0 int 10h ret BootMessage: db &quot;Hello, OS world!&quot; times 510-($-$$) db 0 dw 0xaa55 这段代码是在用于计算机的引导扇区中的，我们将它编译后保存在硬盘的引导扇区上让后设置BIOS从该硬盘启动，就会执行这段代码，在显示器上输出一个“Hello, OS world!”。","@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -193,16 +193,34 @@ SourceFile: "Test.java"
 
 <p>有的人可能会觉得一段C代码的入口也是main函数为什么JVM不是类比一个操作系统呢？首先C代码中的main入口是提供给操作系统调用的，因为操作系统的本质是一个硬件的管理功能，JVM中的一些功能是类似于操作系统的功能，比如GC，但是本文不对这些功能做讲解是为了更好的体现JVM的本质（实际上，在阅读JVM规范的时候你会发现文档中很少有提及这些类似于操作系统的功能，像垃圾回收这些相关的文档可能需要去阅读各虚拟机的具体实现的文档如HotSpot，因为它们不是必须的）</p>
 <h3 id="cpu结构与jvm结构">CPU结构与JVM结构</h3>
-<p><img src="../img/aHR0cHM6Ly90aW1nc2EuYmFpZHUuY29tL3RpbWc_aW1hZ2UmcXVhbGl0eT04MCZzaXplPWI5OTk5XzEwMDAwJnNlYz0xNTg3MTk0Njg4NDg1JmRpPWRmOTM2NjIxZTEzMWYzMWI3OTgzYWZjYzAxYzA0ZWZiJmltZ3R5cGU9MCZzcmM9aHR0cDovL2dzczAuYmFpZHUuY29tLzk0bzNkU2FnX3hJNGtoR2tvOVdUQW5GNmh.jpeg" alt="在这里插入图片描述" />
-这是我在网络上找的一个图片8086CPU的内部结构，我们试着解释一段汇编的代码</p>
+
+<p><img src="../img/aHR0cHM6Ly90aW1nc2EuYmFpZHUuY29tL3RpbWc_aW1hZ2UmcXVhbGl0eT04MCZzaXplPWI5OTk5XzEwMDAwJnNlYz0xNTg3MTk0Njg4NDg1JmRpPWRmOTM2NjIxZTEzMWYzMWI3OTgzYWZjYzAxYzA0ZWZiJmltZ3R5cGU9MCZzcmM9aHR0cDovL2dzczAuYmFpZHUuY29tLzk0bzNkU2FnX3hJNGtoR2tvOVdUQW5GNmh.jpeg" alt="在这里插入图片描述" /></p>
+
+<p>这是我在网络上找的一个图片8086CPU的内部结构，我们试着解释一段汇编的代码</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    mov ax, cs //将寄存器cs的值传送到ax
     mov ds, ax//将寄存器ax的值传送到ds
     mov es, ax//将寄存器ax的值传送到es
     call DispStr//调用DispStr
 </code></pre></div></div>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>其实这些CPU的指令都是做着这些非常基本的工作，移动某个寄存器的数据到另一个地方，从某个设备读取数据    ![在这里插入图片描述](../img/20200418150152507.png) 我先不去管本文中不关心的部分 主要来看一下程序计数器和虚拟机栈（堆内存更像是一台计算机的主存） 我们知道程序计数器是一个线程私有的区域它主要用于表示当前执行到哪条指令，类似的功能在8086CPU上可以通过段地址寄存器加上IP寄存器或者某个偏移量 ![在这里插入图片描述](../img/20200418143732575.png) 图中的部分最终输出的20地址就是JVM中程序计数器的工作 再来看虚拟机栈的内容 ![在这里插入图片描述](../img/20200418144805313.png) 每次JAVA的方法调用都会产生一个栈针（实际上栈针的概念类似与CPU相应中断的时候保存上下文执行完中断后再返回的步骤），栈针不仅包含图中的信息但是我们目前关系的仅仅是操作数栈，JVM的指令基本都是通过操作数栈实现的，这里和CPU的结构有点不太一样，其实只是两种设计而已，他们实现相同的功能。
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>其实这些CPU的指令都是做着这些非常基本的工作，移动某个寄存器的数据到另一个地方，从某个设备读取数据
 </code></pre></div></div>
+
+<p><img src="../img/20200418150152507.png" alt="在这里插入图片描述" /></p>
+
+<p>我先不去管本文中不关心的部分
+主要来看一下程序计数器和虚拟机栈（堆内存更像是一台计算机的主存）
+我们知道程序计数器是一个线程私有的区域它主要用于表示当前执行到哪条指令，类似的功能在8086CPU上可以通过段地址寄存器加上IP寄存器或者某个偏移量</p>
+
+<p><img src="../img/20200418143732575.png" alt="在这里插入图片描述" /></p>
+
+<p>图中的部分最终输出的20地址就是JVM中程序计数器的工作
+再来看虚拟机栈的内容</p>
+
+<p><img src="../img/20200418144805313.png" alt="在这里插入图片描述" /></p>
+
+<p>每次JAVA的方法调用都会产生一个栈针（实际上栈针的概念类似与CPU相应中断的时候保存上下文执行完中断后再返回的步骤），栈针不仅包含图中的信息但是我们目前关系的仅仅是操作数栈，JVM的指令基本都是通过操作数栈实现的，这里和CPU的结构有点不太一样，其实只是两种设计而已，他们实现相同的功能。</p>
 
 <p>比如在CPU中我们可以用ADD指令进行加法运算</p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	add ax,bx//将ax寄存器的值加上bx寄存器的值在赋值给ax
@@ -222,6 +240,8 @@ SourceFile: "Test.java"
 
 <div class="pagination">
   
+    <a href="/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83" class="left arrow">&#8592;上一篇</a>
+  
   
 
   <a href="#" class="top">Top</a>
@@ -230,7 +250,7 @@ SourceFile: "Test.java"
 
     <footer>
   <span>
-    &copy; <time datetime="2020-12-30 14:05:20 +0800">2020</time> 凯帆. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+    &copy; <time datetime="2020-12-30 14:29:25 +0800">2020</time> 凯帆. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
   </span>
 </footer>
 

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>关于财务业务模型的思考 | Kaifan&amp;Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="关于财务业务模型的思考" />
+<meta name="author" content="凯帆" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。" />
+<meta property="og:description" content="之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。" />
+<link rel="canonical" href="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83" />
+<meta property="og:url" content="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83" />
+<meta property="og:site_name" content="Kaifan&amp;Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-27T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="关于财务业务模型的思考" />
+<script type="application/ld+json">
+{"url":"/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83","headline":"关于财务业务模型的思考","dateModified":"2020-04-27T00:00:00+08:00","datePublished":"2020-04-27T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83"},"author":{"@type":"Person","name":"凯帆"},"description":"之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"/>
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"> -->
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Kaifan&amp;Blog" />
+
+  <!-- Google Analytics-->
+  
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Kaifan&Blog</h2>
+    </a>
+    <ul>
+      <li><a href="/">博客</a></li>
+      <li><a href="/tags">标签</a></li>
+      <li><a href="/about">联系</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        凯帆
+    
+
+    
+      <br>
+      <span>发布于&nbsp;</span><time datetime="2020-04-27 00:00:00 +0800">2020年04月27日</time>
+    
+  </div>
+
+  <h1 class="post-title">关于财务业务模型的思考</h1>
+  <div class="post-line"></div>
+
+  <p>之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。</p>
+
+<h2 id="基本模型">基本模型</h2>
+
+<h3 id="组织">组织</h3>
+
+<p>在财务中，会计并不关心这个组织是做什么的，在财务系统开发中我们将门店 仓库 供应商等统称为组织这种级别的组织我们称之为3级组织
+对于国家税务局来说，他并不关系每个一级组织的情况，他们所关系的是分公司公司及2级组织和1级组织
+为了统一模型我们给每个公司建立一个虚拟子公司称之为本部子公司
+以上说的公司就是子公司，总公司其实只是子公司的股东，在这套模型中作为对外投资关联
+对于其他不完整的组织我们通过虚拟的方式使其变得完整</p>
+
+<p><img src="../img/20200427230657238.png" alt="在这里插入图片描述" /></p>
+
+<h3 id="交易">交易</h3>
+
+<p>这里先忘记之前的交易的理解
+我们这里的交易是指：两个组织之间发生的某种行为，这种行为涉及到双方资产与负债的变动，交易发生在3级组织之间，
+我们之所以将交易的发生放在3级组织是应为现实生活中可是是去门店购买，大客户可由仓库发货，并不是分公司，但是3级组织作为2级组织的一部分在最总汇总时可以被归属到某个2级组织甚至1级组织
+门店仓库这些不同类型是组织的一个tag，组织可以同时拥有多个tag</p>
+
+<p><img src="../img/202004272308004.png" alt="在这里插入图片描述" /></p>
+
+<h3 id="单据">单据</h3>
+
+<p>在交易的过程中会出现一些文件信息用于记录交易这样行为的发生过程，这种文件信息我们称之为单据
+像仓库间调拨，销售，验收，这些我们都称之为单据，发票作为一种特殊的单据也是单据的一种</p>
+
+<p><img src="../img/2020042723085382.png" alt="在这里插入图片描述" /></p>
+
+<h3 id="交易模型">交易模型</h3>
+
+<p>交易的行为是可以被枚举的我们提前确定这个交易的过程，定义为交易模型
+交易模型确认交易过程是如何发生的，产生什么单据，交易过程可以用于几级组织
+整个交易的过程按照交易模板预先设置好的去执行</p>
+
+<p><img src="../img/20200427230929632.png" alt="在这里插入图片描述" /></p>
+
+<p>交易模板确定什么组织和什么组织之间可以发生什么交易通过组织tag确定</p>
+
+<h2 id="业务视图举例说明">业务视图（举例说明）</h2>
+
+<h3 id="定义">定义</h3>
+
+<p>业务视图是在基本模型之上对于各种数据的处理过后生成的某种数据视图–报表
+视图单据可以以来其他视图单据
+处理过程包括人工审核等
+直接视图是指不经过任何处理就生成的业务视图，如业务要看门店A的销售情况，可以直接查看基础模型的销售单，这个销售单在业务视图的展示需要通过直接视图进行展示
+举例：如结算单，对账单，凭证</p>
+
+<h3 id="结算单">结算单</h3>
+
+<p>结算单的业务用途，结算某个子公司和供应商之间的会计期间的账务
+描述过程为：通过某个子公司和某个供应商的预付款、发票、费用单、对账单进行结算，最终生成预付款单据视图
+财务调整是结算单的一个处理过程
+预付款和发票是基本模型中的数据
+最后一个对账单是另一个业务视图，我们现在看来看一下</p>
+
+<h3 id="对账单">对账单</h3>
+
+<p>对账单是用于某个子公司和供应商之间的结算过程，最终生成结算单
+对账单利用验收单，退货单，补救单这3个基础数据生成子公司和供应商之间的对账单
+最终对账单提供给结算单支撑</p>
+
+</div>
+
+
+
+<div class="pagination">
+  
+  
+    <a href="/2020-04-18/%E5%85%B3%E4%BA%8E%E5%94%AE%E5%90%8E%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%80%9D%E8%80%83" class="right arrow">下一篇&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <footer>
+  <span>
+    &copy; <time datetime="2020-12-30 14:29:25 +0800">2020</time> 凯帆. Made with Jekyll using the <a href="https://github.com/chesterhow/tale/">Tale</a> theme.
+  </span>
+</footer>
+
+  </body>
+</html>
