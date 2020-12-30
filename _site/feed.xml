@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-12-30T11:31:19+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">Introducing Tale</title><link href="/2017-03-29/introducing-tale" rel="alternate" type="text/html" title="Introducing Tale" /><published>2017-03-29T00:00:00+08:00</published><updated>2017-03-29T00:00:00+08:00</updated><id>/2017-03-29/introducing-tale</id><content type="html" xml:base="/2017-03-29/introducing-tale">&lt;p&gt;Tale is a minimal &lt;a href=&quot;https://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt; theme curated for storytellers. It is designed and developed by &lt;a href=&quot;https://github.com/chesterhow/&quot;&gt;myself&lt;/a&gt; for a friend who writes short stories.&lt;/p&gt;
+
+&lt;h2 id=&quot;tale-features&quot;&gt;Tale features&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Compatible with GitHub Pages&lt;/li&gt;
+  &lt;li&gt;Responsive design (looks just as good on mobile)&lt;/li&gt;
+  &lt;li&gt;Syntax highlighting, with the help of Pygments&lt;/li&gt;
+  &lt;li&gt;Markdown and HTML text formatting&lt;/li&gt;
+  &lt;li&gt;Pagination of posts&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Head over to the &lt;a href=&quot;/2017-03-16/example-content&quot;&gt;Example Content&lt;/a&gt; post for a showcase of Tale’s text formatting features.&lt;/p&gt;
+
+&lt;h2 id=&quot;browser-support&quot;&gt;Browser Support&lt;/h2&gt;
+&lt;p&gt;Tale works on most if not all modern browsers, including Chrome, Safari and Firefox 👍🏼&lt;/p&gt;
+
+&lt;h2 id=&quot;download-or-contribute&quot;&gt;Download or Contribute&lt;/h2&gt;
+&lt;p&gt;Tale is publicly hosted on GitHub, so go ahead and download or fork it at the &lt;a href=&quot;https://github.com/chesterhow/tale&quot;&gt;GitHub repository&lt;/a&gt;. If you spot any bugs or have any suggestions, feel free to create an issue or make a pull request.&lt;/p&gt;
+
+&lt;p&gt;Thanks for checking out Tale!&lt;/p&gt;</content><author><name>Chester</name></author><category term="Tale" /><summary type="html">Tale is a minimal Jekyll theme curated for storytellers. It is designed and developed by myself for a friend who writes short stories.</summary></entry><entry><title type="html">Pagination Post</title><link href="/2017-03-05/pagination-post" rel="alternate" type="text/html" title="Pagination Post" /><published>2017-03-05T00:00:00+08:00</published><updated>2017-03-05T00:00:00+08:00</updated><id>/2017-03-05/pagination-post</id><content type="html" xml:base="/2017-03-05/pagination-post">&lt;p&gt;Here we see &lt;strong&gt;Tale’s&lt;/strong&gt; pagination feature in action. It is set to 5 posts per page by default. Feel free to change this number in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt; file!&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="但是颠三倒四" /><category term="suds" /><summary type="html">Here we see Tale’s pagination feature in action. It is set to 5 posts per page by default. Feel free to change this number in the _config.yml file!</summary></entry></feed>
