@@ -1,3 +1,4 @@
+cd /Users/kaifanzhou/zkaif.github.io
 jekyll build --destination docs
 git add .
 git commit . -m "publish"
