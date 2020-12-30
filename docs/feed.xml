@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-12-30T15:06:51+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">关于财务业务模型的思考</title><link href="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83" rel="alternate" type="text/html" title="关于财务业务模型的思考" /><published>2020-04-27T00:00:00+08:00</published><updated>2020-04-27T00:00:00+08:00</updated><id>/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83</id><content type="html" xml:base="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83">&lt;p&gt;之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-12-30T17:04:01+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">关于财务业务模型的思考</title><link href="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83" rel="alternate" type="text/html" title="关于财务业务模型的思考" /><published>2020-04-27T00:00:00+08:00</published><updated>2020-04-27T00:00:00+08:00</updated><id>/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83</id><content type="html" xml:base="/2020-04-27/%E5%85%B3%E4%BA%8E%E8%B4%A2%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E8%80%83">&lt;p&gt;之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。&lt;/p&gt;
 
 &lt;h2 id=&quot;基本模型&quot;&gt;基本模型&lt;/h2&gt;
 
@@ -182,14 +182,13 @@ SourceFile: &quot;Test.java&quot;
 
 &lt;p&gt;这是我在网络上找的一个图片8086CPU的内部结构，我们试着解释一段汇编的代码&lt;/p&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    mov ax, cs //将寄存器cs的值传送到ax
-    mov ds, ax//将寄存器ax的值传送到ds
-    mov es, ax//将寄存器ax的值传送到es
-    call DispStr//调用DispStr
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mov ax, cs //将寄存器cs的值传送到ax
+mov ds, ax//将寄存器ax的值传送到ds
+mov es, ax//将寄存器ax的值传送到es
+call DispStr//调用DispStr
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;其实这些CPU的指令都是做着这些非常基本的工作，移动某个寄存器的数据到另一个地方，从某个设备读取数据
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;其实这些CPU的指令都是做着这些非常基本的工作，移动某个寄存器的数据到另一个地方，从某个设备读取数据&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;../img/20200418150152507.png&quot; alt=&quot;在这里插入图片描述&quot; /&gt;&lt;/p&gt;
 
@@ -207,10 +206,10 @@ SourceFile: &quot;Test.java&quot;
 &lt;p&gt;每次JAVA的方法调用都会产生一个栈针（实际上栈针的概念类似与CPU相应中断的时候保存上下文执行完中断后再返回的步骤），栈针不仅包含图中的信息但是我们目前关系的仅仅是操作数栈，JVM的指令基本都是通过操作数栈实现的，这里和CPU的结构有点不太一样，其实只是两种设计而已，他们实现相同的功能。&lt;/p&gt;
 
 &lt;p&gt;比如在CPU中我们可以用ADD指令进行加法运算&lt;/p&gt;
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	add ax,bx//将ax寄存器的值加上bx寄存器的值在赋值给ax
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;add ax,bx//将ax寄存器的值加上bx寄存器的值在赋值给ax
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;而对应的在JVM中我们可以做类似的加法运算&lt;/p&gt;
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	iadd //从操作数栈中弹出两个int值相加后压入操作数栈
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;iadd //从操作数栈中弹出两个int值相加后压入操作数栈
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;JVM的执行引擎类似与运算器和寄存器，但是他们采用了不同的实现。&lt;/p&gt;
 
