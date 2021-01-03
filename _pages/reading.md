@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Books"
-permalink: /books/
+title: "Reading"
+permalink: /reading/
 ---
 
 ### 阅读中
