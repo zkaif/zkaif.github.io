@@ -28,7 +28,7 @@ permalink: /reading/
 + Java8实战
 + Java并发编程核心技术
 + Java并发编程实战
-+ Unix高级环境编程
++ Unix环境高级编程
 + MySQL必知必会
 + MySQL是怎样运行的
 + NoSQL精粹
