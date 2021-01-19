@@ -1,4 +1,79 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-01-17T20:23:00+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">从File类到操作系统</title><link href="/2021-01-17/%E4%BB%8EFile%E7%B1%BB%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" rel="alternate" type="text/html" title="从File类到操作系统" /><published>2021-01-17T00:00:00+08:00</published><updated>2021-01-17T00:00:00+08:00</updated><id>/2021-01-17/%E4%BB%8EFile%E7%B1%BB%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F</id><content type="html" xml:base="/2021-01-17/%E4%BB%8EFile%E7%B1%BB%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Serializable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Comparable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-01-19T10:56:16+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">业务事件中心设计思想</title><link href="/2021-01-19/%E4%BA%A4%E6%98%93%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1" rel="alternate" type="text/html" title="业务事件中心设计思想" /><published>2021-01-19T00:00:00+08:00</published><updated>2021-01-19T00:00:00+08:00</updated><id>/2021-01-19/%E4%BA%A4%E6%98%93%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1</id><content type="html" xml:base="/2021-01-19/%E4%BA%A4%E6%98%93%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1">&lt;p&gt;本文只是提供一个简单的思考方向，实现方案只是举例说明，如果读者也需要一个类似的功能，可以根据以下思路去完善。&lt;/p&gt;
+
+&lt;h3 id=&quot;背景&quot;&gt;背景&lt;/h3&gt;
+
+&lt;p&gt;在订单系统的业务中通常会碰到类似这样的功能&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;订单5分钟未支付自动取消订单&lt;/li&gt;
+  &lt;li&gt;订单支付30分钟后自动接单&lt;/li&gt;
+  &lt;li&gt;订单15天后自动确认收货&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;或者在逆交易中有类似这样的需求&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;优惠券相关的商品金额退款完成后退还优惠券&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;通常实现方案&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;延时消息，消息队列对于存储时间过长的数据可能无法支持像RocketMQ默认配置最大保存2天，大多不支持取消&lt;/li&gt;
+  &lt;li&gt;数据库加索引扫描出合适订单，造成业务库索引过多影响性能，需要自己维护关联关系，有时候筛选条件存在多个，需要定时任务扫描业务库&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;基于这类需求经过分析抽象后，梳理出了一个事件中心的概念，去解决这类问题&lt;/p&gt;
+
+&lt;p&gt;总体思路是业务放向事件中心注册事件后，事件中心会主动发送消息或者是其他方式去通知到业务方，从而触发业务代码的执行。&lt;/p&gt;
+
+&lt;h3 id=&quot;总体架构&quot;&gt;总体架构&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/事件架构.png&quot; alt=&quot;事件架构&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;事件中心以与业务不相关的方式去实现，统一向业务方提供服务，事件中心仅仅解决如何触发的问题，减轻业务库的压力&lt;/p&gt;
+
+&lt;h3 id=&quot;uml&quot;&gt;UML&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/CountTrigEvent.png&quot; alt=&quot;CountTrigEvent&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;租户id代表一个业务方&lt;/li&gt;
+  &lt;li&gt;三方ID表示是一个业务内的事件归属对象如一个订单，一个优惠券&lt;/li&gt;
+  &lt;li&gt;三方类型用于用户自定义（后续进一步抽象事件中心会非常有用）&lt;/li&gt;
+  &lt;li&gt;扩展字段，用于用户自己数据透传，触发时会带给用户&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;核心流程&quot;&gt;核心流程&lt;/h3&gt;
+
+&lt;p&gt;时间时间用于处理多少时间后通知业务的场景，定时调度保证租户ID纬度单线程&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/时间时间流程.png&quot; alt=&quot;时间时间流程&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;增量事件用于处理数量到达一定值的时候触发业务，第一次注册创建事件，后续注册增加值，超时机制只是确保一个事件的失效不要让业务以来它，可以同时创建一个时间事件补充，定时调度保证租户ID纬度单线程&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../img/增量事件流程.png&quot; alt=&quot;增量事件流程&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;事件管理器&quot;&gt;事件管理器&lt;/h3&gt;
+
+&lt;p&gt;按照以上的描述，业务仍然需要去自己管理事件，创建事件，取消事件。&lt;/p&gt;
+
+&lt;p&gt;所以我们在事件之上抽象一成事件管理器。这样业务应用只需要抽象自己的业务本身，如订单的创建可以对应一个事件管理器支付可以对应一个事件管理器。然后我们配置事件管理器的内容&lt;/p&gt;
+
+&lt;p&gt;我们举例一个支付事件管理器，它的主要工作如下&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;取消5分钟超时事件&lt;/li&gt;
+  &lt;li&gt;创建30分钟后商家自动接单事件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;这样我们把每个事件的三方id和对应的操作保存在事件管理器中，并且事件管理器也可以有参数，我们可以配置这些参数传给某个事件的某个字段。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/Users/kaifanzhou/zkaif.github.io/img/管理器流程.png&quot; alt=&quot;管理器流程&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;总结&quot;&gt;总结&lt;/h3&gt;
+
+&lt;p&gt;本质上事件中心只是在技术视角上对一类功能进行抽象，从而解决如何找到需要背处理的数据的问题，然后将它们剥离出来，以降低业务应用的复杂度。在后续事件过多后，为了避免业务代码与具体事件耦合，在事件之上再抽象了一层管理器，来帮助业务应用去维护好自己的事件。&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务架构" /><summary type="html">本文只是提供一个简单的思考方向，实现方案只是举例说明，如果读者也需要一个类似的功能，可以根据以下思路去完善。</summary></entry><entry><title type="html">从File类到操作系统</title><link href="/2021-01-17/%E4%BB%8EFile%E7%B1%BB%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" rel="alternate" type="text/html" title="从File类到操作系统" /><published>2021-01-17T00:00:00+08:00</published><updated>2021-01-17T00:00:00+08:00</updated><id>/2021-01-17/%E4%BB%8EFile%E7%B1%BB%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F</id><content type="html" xml:base="/2021-01-17/%E4%BB%8EFile%E7%B1%BB%E5%88%B0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Serializable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Comparable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;File类实现了Serializable, Comparable接口，可序列化，可以比较&lt;/p&gt;
@@ -729,7 +804,7 @@
 
 &lt;p&gt;对账单是用于某个子公司和供应商之间的结算过程，最终生成结算单
 对账单利用验收单，退货单，补救单这3个基础数据生成子公司和供应商之间的对账单
-最终对账单提供给结算单支撑&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务" /><summary type="html">之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。</summary></entry><entry><title type="html">Java虚拟机到底虚拟了什么</title><link href="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88" rel="alternate" type="text/html" title="Java虚拟机到底虚拟了什么" /><published>2020-04-18T00:00:00+08:00</published><updated>2020-04-18T00:00:00+08:00</updated><id>/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88</id><content type="html" xml:base="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88">&lt;p&gt;最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。&lt;/p&gt;
+最终对账单提供给结算单支撑&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务架构" /><summary type="html">之前参与公司财务业务的开发，自己阅读《会计学基础》后，自己尝试设计了一下业务架构，现在整理记录一下。</summary></entry><entry><title type="html">Java虚拟机到底虚拟了什么</title><link href="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88" rel="alternate" type="text/html" title="Java虚拟机到底虚拟了什么" /><published>2020-04-18T00:00:00+08:00</published><updated>2020-04-18T00:00:00+08:00</updated><id>/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88</id><content type="html" xml:base="/2020-04-18/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%88%B0%E5%BA%95%E8%99%9A%E6%8B%9F%E4%BA%86%E4%BB%80%E4%B9%88">&lt;p&gt;最近阅读新版的《深入理解Java虚拟机》有了自己实现一个虚拟机的想法，在完成阶段性的目标后重新认识了一下JVM，希望记录并且分享。本文主要为了总结Java虚拟机是什么，本文并不会介绍内存，GC，类加载器这些面试类的“知识要点”，而是期望总结清楚最本质的东西。&lt;/p&gt;
 &lt;h3 id=&quot;可执行文件与class文件&quot;&gt;可执行文件与Class文件&lt;/h3&gt;
 &lt;h5 id=&quot;我们先来看一段汇编代码&quot;&gt;我们先来看一段汇编代码&lt;/h5&gt;
 &lt;p&gt;Hello, OS world!程序：&lt;/p&gt;
@@ -893,7 +968,7 @@ call DispStr//调用DispStr
 &lt;p&gt;现在如何抽象一个售后单，让我们把重点放到售后业务本身，而不是售后单。快递、生鲜他们都是对于某次交易中不满意商品的协商处理过程。这两个业务场景中售后仅能对单个商品发起，但是并不是所有售后业务都是单商品售后，这让他们之间多了一些其他售后流程没有的共性，即单商品售后流程，代码实现上我们就可以抽象出一个最抽象的父类售后单，抽象类单商品售后单，然后才是快递售后单和生鲜售后单。售后流程中的各种操作过程作为售后单的方法被编码。其他视角其实也是相同的。另外从更广的角度来说对各种单据的抽象可以是的售后单被归类到某种单据的实现中去——抽象一个售后单&lt;/p&gt;
 
 &lt;h3 id=&quot;总结&quot;&gt;总结&lt;/h3&gt;
-&lt;p&gt;在面对这样的业务时，容易犯错就是将关注点本身放到售后单本身而不是售后业务本身，容易忽略一个事情就是，售后单本质上是现实生活中的人们为了更好的进行售后，而将售后业务抽象后产生的某种产物，售后单本身已经为我们实现售后功能做了很多工作，但是千万不能忘记一点，把关注点放到业务而不是数据，像售后单的状态代表的是当前售后处在什么环节，而不是真的表示这个售后单是什么状态。&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务" /><summary type="html">背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用</summary></entry><entry><title type="html">云片RocketMQ实战：Stargate的前世今生</title><link href="/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98-Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F" rel="alternate" type="text/html" title="云片RocketMQ实战：Stargate的前世今生" /><published>2019-08-16T00:00:00+08:00</published><updated>2019-08-16T00:00:00+08:00</updated><id>/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98:Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F</id><content type="html" xml:base="/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98-Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F">&lt;p&gt;云片由于其业务特点对应消息队列的使用十分频繁，这里以云片短信业务为例，短信业务的逻辑十分简单，我们只看主流程，本质就是接受用户请求，寻找合适的通道，使用cmpp/smpp协议提交给运营商。&lt;/p&gt;
+&lt;p&gt;在面对这样的业务时，容易犯错就是将关注点本身放到售后单本身而不是售后业务本身，容易忽略一个事情就是，售后单本质上是现实生活中的人们为了更好的进行售后，而将售后业务抽象后产生的某种产物，售后单本身已经为我们实现售后功能做了很多工作，但是千万不能忘记一点，把关注点放到业务而不是数据，像售后单的状态代表的是当前售后处在什么环节，而不是真的表示这个售后单是什么状态。&lt;/p&gt;</content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务架构" /><summary type="html">背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用</summary></entry><entry><title type="html">云片RocketMQ实战：Stargate的前世今生</title><link href="/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98-Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F" rel="alternate" type="text/html" title="云片RocketMQ实战：Stargate的前世今生" /><published>2019-08-16T00:00:00+08:00</published><updated>2019-08-16T00:00:00+08:00</updated><id>/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98:Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F</id><content type="html" xml:base="/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98-Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F">&lt;p&gt;云片由于其业务特点对应消息队列的使用十分频繁，这里以云片短信业务为例，短信业务的逻辑十分简单，我们只看主流程，本质就是接受用户请求，寻找合适的通道，使用cmpp/smpp协议提交给运营商。&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZmtTOFFpY1EzS3c0N1Z6MmZkYlppYmo2czJZWTNldjFWTzBHVW1pY3BIV3RSZWlib21pYXpIOEVmcm5nLzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
 
