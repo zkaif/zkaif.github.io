@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Java文件IO | Kaifan&amp;Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Java文件IO" />
+<meta name="author" content="凯帆" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="本文只考虑Linux系统" />
+<meta property="og:description" content="本文只考虑Linux系统" />
+<link rel="canonical" href="/2021-02-05/Java%E6%96%87%E4%BB%B6IO" />
+<meta property="og:url" content="/2021-02-05/Java%E6%96%87%E4%BB%B6IO" />
+<meta property="og:site_name" content="Kaifan&amp;Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-05T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Java文件IO" />
+<script type="application/ld+json">
+{"url":"/2021-02-05/Java%E6%96%87%E4%BB%B6IO","headline":"Java文件IO","datePublished":"2021-02-05T00:00:00+08:00","dateModified":"2021-02-05T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/2021-02-05/Java%E6%96%87%E4%BB%B6IO"},"author":{"@type":"Person","name":"凯帆"},"description":"本文只考虑Linux系统","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"/>
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"> -->
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Kaifan&amp;Blog" />
+
+  <!-- Google Analytics-->
+  
+
+
+  <!-- 百度统计 -->
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?c441094a03e224f52920af74485f3482";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Kaifan&Blog</h2>
+    </a>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/tags">Tags</a></li>
+      <li><a href="/reading">Reading</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        凯帆
+    
+
+    
+      <br>
+      <span>发布于&nbsp;</span><time datetime="2021-02-05 00:00:00 +0800">2021年02月05日</time>
+    
+  </div>
+
+  <h1 class="post-title">Java文件IO</h1>
+  <div class="post-line"></div>
+
+  <p>本文只考虑Linux系统</p>
+
+<h3 id="传统io">传统IO</h3>
+
+<ul>
+  <li>FileOutputStream</li>
+  <li>FileInputStream</li>
+  <li>RandomAccessFile</li>
+</ul>
+
+<p>这些类的实现最终都会通过native方法调用c代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//FileOutputStream</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="kt">int</span> <span class="n">b</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">append</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">writeBytes</span><span class="o">(</span><span class="kt">byte</span> <span class="n">b</span><span class="o">[],</span> <span class="kt">int</span> <span class="n">off</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">append</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+
+<span class="c1">//FileInputStream</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">int</span> <span class="nf">read0</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">int</span> <span class="nf">readBytes</span><span class="o">(</span><span class="kt">byte</span> <span class="n">b</span><span class="o">[],</span> <span class="kt">int</span> <span class="n">off</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+
+<span class="c1">//RandomAccessFile</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">int</span> <span class="nf">read0</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">int</span> <span class="nf">readBytes</span><span class="o">(</span><span class="kt">byte</span> <span class="n">b</span><span class="o">[],</span> <span class="kt">int</span> <span class="n">off</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">write0</span><span class="o">(</span><span class="kt">int</span> <span class="n">b</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">writeBytes</span><span class="o">(</span><span class="kt">byte</span> <span class="n">b</span><span class="o">[],</span> <span class="kt">int</span> <span class="n">off</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>看一下native的实现</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//FileOutputStream_md.c</span>
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_FileOutputStream_write</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jint</span> <span class="n">byte</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">append</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">writeSingle</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">byte</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span> <span class="n">fos_fd</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_FileOutputStream_writeBytes</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span>
+    <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">append</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">writeBytes</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span> <span class="n">fos_fd</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">//FileInputStream.c</span>
+<span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_FileInputStream_read0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">readSingle</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">fis_fd</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_FileInputStream_readBytes</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+        <span class="n">jbyteArray</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">readBytes</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">fis_fd</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">//RandomAccessFile.c</span>
+<span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_RandomAccessFile_read0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">readSingle</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">raf_fd</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_RandomAccessFile_readBytes</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span>
+    <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">readBytes</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">raf_fd</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_RandomAccessFile_write0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jint</span> <span class="n">byte</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">writeSingle</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">byte</span><span class="p">,</span> <span class="n">JNI_FALSE</span><span class="p">,</span> <span class="n">raf_fd</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_io_RandomAccessFile_writeBytes</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span>
+    <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">writeBytes</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">JNI_FALSE</span><span class="p">,</span> <span class="n">raf_fd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>最终的实现都在io_util.c里面</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">jint</span>
+<span class="nf">readSingle</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jfieldID</span> <span class="n">fid</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">jint</span> <span class="n">nread</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="n">FD</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">GET_FD</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">fid</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowIOException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Stream Closed"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">nread</span> <span class="o">=</span> <span class="n">IO_Read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* EOF */</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* error */</span>
+        <span class="n">JNU_ThrowIOExceptionWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Read error"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ret</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* The maximum size of a stack-allocated buffer.
+ */</span>
+<span class="cp">#define BUF_SIZE 8192
+</span>
+<span class="cm">/*
+ * Returns true if the array slice defined by the given offset and length
+ * is out of bounds.
+ */</span>
+<span class="k">static</span> <span class="kt">int</span>
+<span class="nf">outOfBounds</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">array</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">off</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">||</span>
+            <span class="p">(</span><span class="n">len</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">||</span>
+            <span class="c1">// We are very careful to avoid signed integer overflow,</span>
+            <span class="c1">// the result of which is undefined in C.</span>
+            <span class="p">((</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetArrayLength</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span> <span class="o">-</span> <span class="n">off</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">jint</span>
+<span class="nf">readBytes</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">bytes</span><span class="p">,</span>
+          <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">,</span> <span class="n">jfieldID</span> <span class="n">fid</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">nread</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">stackBuf</span><span class="p">[</span><span class="n">BUF_SIZE</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">FD</span> <span class="n">fd</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">bytes</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">outOfBounds</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">bytes</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/lang/IndexOutOfBoundsException"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">BUF_SIZE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">buf</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowOutOfMemoryError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">stackBuf</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">fd</span> <span class="o">=</span> <span class="n">GET_FD</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">fid</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowIOException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Stream Closed"</span><span class="p">);</span>
+        <span class="n">nread</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">nread</span> <span class="o">=</span> <span class="n">IO_Read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetByteArrayRegion</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">nread</span><span class="p">,</span> <span class="p">(</span><span class="n">jbyte</span> <span class="o">*</span><span class="p">)</span><span class="n">buf</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowIOExceptionWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Read error"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="cm">/* EOF */</span>
+            <span class="n">nread</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">buf</span> <span class="o">!=</span> <span class="n">stackBuf</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">nread</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span>
+<span class="nf">writeSingle</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jint</span> <span class="n">byte</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">append</span><span class="p">,</span> <span class="n">jfieldID</span> <span class="n">fid</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Discard the 24 high-order bits of byte. See OutputStream#write(int)</span>
+    <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="p">)</span> <span class="n">byte</span><span class="p">;</span>
+    <span class="n">jint</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">FD</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">GET_FD</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">fid</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowIOException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Stream Closed"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">append</span> <span class="o">==</span> <span class="n">JNI_TRUE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">IO_Append</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">IO_Write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowIOExceptionWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Write error"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span>
+<span class="nf">writeBytes</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">bytes</span><span class="p">,</span>
+           <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">append</span><span class="p">,</span> <span class="n">jfieldID</span> <span class="n">fid</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">stackBuf</span><span class="p">[</span><span class="n">BUF_SIZE</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">FD</span> <span class="n">fd</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">bytes</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">outOfBounds</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">bytes</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/lang/IndexOutOfBoundsException"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">BUF_SIZE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">buf</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowOutOfMemoryError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">stackBuf</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetByteArrayRegion</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="p">(</span><span class="n">jbyte</span> <span class="o">*</span><span class="p">)</span><span class="n">buf</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ExceptionOccurred</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">off</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">fd</span> <span class="o">=</span> <span class="n">GET_FD</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">fid</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowIOException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Stream Closed"</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">append</span> <span class="o">==</span> <span class="n">JNI_TRUE</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">IO_Append</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="o">+</span><span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">IO_Write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="o">+</span><span class="n">off</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowIOExceptionWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Write error"</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">off</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+            <span class="n">len</span> <span class="o">-=</span> <span class="n">n</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">buf</span> <span class="o">!=</span> <span class="n">stackBuf</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">throwFileNotFoundException</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jstring</span> <span class="n">path</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+    <span class="kt">size_t</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">jobject</span> <span class="n">x</span><span class="p">;</span>
+    <span class="n">jstring</span> <span class="n">why</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">getLastErrorString</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef WIN32
+</span>        <span class="n">why</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">NewStringUTF</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+<span class="cp">#else
+</span>        <span class="n">why</span> <span class="o">=</span> <span class="n">JNU_NewStringPlatform</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+<span class="cp">#endif
+</span>        <span class="n">CHECK_NULL</span><span class="p">(</span><span class="n">why</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">JNU_NewObjectByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span>
+                            <span class="s">"java/io/FileNotFoundException"</span><span class="p">,</span>
+                            <span class="s">"(Ljava/lang/String;Ljava/lang/String;)V"</span><span class="p">,</span>
+                            <span class="n">path</span><span class="p">,</span> <span class="n">why</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Throw</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>其中的IO_Write与IO_Read是宏定义具体实现依赖操作系统</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define IO_Write handleWrite
+#define IO_Read handleRead
+</span></code></pre></div></div>
+
+<p>unix目录下的io_util_md.c实现了类unix系统的实现，其本质就是调用了两个系统调用read与write</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">ssize_t</span>
+<span class="nf">handleRead</span><span class="p">(</span><span class="n">FD</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">ssize_t</span> <span class="n">result</span><span class="p">;</span>
+    <span class="n">RESTARTABLE</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">),</span> <span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">ssize_t</span>
+<span class="nf">handleWrite</span><span class="p">(</span><span class="n">FD</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">ssize_t</span> <span class="n">result</span><span class="p">;</span>
+    <span class="n">RESTARTABLE</span><span class="p">(</span><span class="n">write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">),</span> <span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">RESTARTABLE</span><span class="err">是一个宏定义在</span><span class="n">io_util_md</span><span class="p">.</span><span class="n">h</span><span class="err">中</span>
+<span class="cp">#define RESTARTABLE(_cmd, _result) do { \
+    do { \
+        _result = _cmd; \
+    } while((_result == -1) &amp;&amp; (errno == EINTR)); \
+} while(0)
+</span>
+<span class="kt">void</span> <span class="nf">fileDescriptorClose</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">);</span>
+
+<span class="cp">#ifdef MACOSX
+</span><span class="n">jstring</span> <span class="nf">newStringPlatform</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">str</span><span class="p">);</span>
+<span class="cp">#endif
+</span></code></pre></div></div>
+
+<p>read与write函数</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">read</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">)</span>
+<span class="n">write</span><span class="p">(</span><span class="kt">int</span> <span class="n">__fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span> <span class="n">__buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">__nbyte</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>我们可以看到第二个参数是一个指针指向用户空间的要被写入或者读取的地址。</p>
+
+<p>这两个系统调用会有一次用户态到内核态切换当然执行完成后还要切换回来，read会从内核空间中读取数据复制到用户空间的指定地址，这里会有一次复制，如果命中页缓存者直接读取，否则产生缺页，DMA会把设备中的数据复制到内核空间，这里也会有一次复制。JVM读取到从read方法返回的数据后会在用户态再进行一次复制，从堆外内存到JVM堆内存中。</p>
+
+<p>所以整个流程是这样的(直接IO我们最后单独讨论)</p>
+
+<p><img src="../img/bioreadcopy.png" alt="bioreadcopy" /></p>
+
+<p>write也类似这里不过多介绍</p>
+
+<h3 id="nio">NIO</h3>
+
+<p>NIO提供了FileChannel来操作文件</p>
+
+<p>FileChannel提供了更优秀的封装方式，并且使用了一些性能更好的系统调用。</p>
+
+<p>我们从几个方面入手分析FileChannel</p>
+
+<ul>
+  <li>使用HeapByteBuffer的read与write</li>
+  <li>使用DirectBuffer实现类的read与write</li>
+  <li>map方法实现</li>
+  <li>transferTo与transferFrom实现</li>
+</ul>
+
+<p>read与write基本类似这里我们就只分析一下read的具体实现</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">int</span> <span class="nf">read</span><span class="o">(</span><span class="nc">ByteBuffer</span> <span class="n">dst</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="n">ensureOpen</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">readable</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonReadableChannelException</span><span class="o">();</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">positionLock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">direct</span><span class="o">)</span>
+            <span class="nc">Util</span><span class="o">.</span><span class="na">checkChannelPositionAligned</span><span class="o">(</span><span class="n">position</span><span class="o">(),</span> <span class="n">alignment</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">ti</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">beginBlocking</span><span class="o">();</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="na">add</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">isOpen</span><span class="o">())</span>
+                <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="k">do</span> <span class="o">{</span>
+              <span class="c1">//这里调用工具类进行读取 代码看下面</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">dst</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span> <span class="n">direct</span><span class="o">,</span> <span class="n">alignment</span><span class="o">,</span> <span class="n">nd</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">while</span> <span class="o">((</span><span class="n">n</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">INTERRUPTED</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">isOpen</span><span class="o">());</span>
+            <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">normalize</span><span class="o">(</span><span class="n">n</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">threads</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">ti</span><span class="o">);</span>
+            <span class="n">endBlocking</span><span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="k">assert</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">check</span><span class="o">(</span><span class="n">n</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">//IOUtil中的方法</span>
+<span class="kd">static</span> <span class="kt">int</span> <span class="nf">read</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span> <span class="nc">ByteBuffer</span> <span class="n">dst</span><span class="o">,</span> <span class="kt">long</span> <span class="n">position</span><span class="o">,</span>
+                <span class="kt">boolean</span> <span class="n">directIO</span><span class="o">,</span> <span class="kt">int</span> <span class="n">alignment</span><span class="o">,</span> <span class="nc">NativeDispatcher</span> <span class="n">nd</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">dst</span><span class="o">.</span><span class="na">isReadOnly</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Read-only buffer"</span><span class="o">);</span>
+  <span class="c1">//如果是DirectBuffer实现类直接开始读取</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">dst</span> <span class="k">instanceof</span> <span class="nc">DirectBuffer</span><span class="o">)</span>
+        <span class="k">return</span> <span class="nf">readIntoNativeBuffer</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">dst</span><span class="o">,</span> <span class="n">position</span><span class="o">,</span> <span class="n">directIO</span><span class="o">,</span> <span class="n">alignment</span><span class="o">,</span> <span class="n">nd</span><span class="o">);</span>
+
+    <span class="c1">// Substitute a native buffer</span>
+  <span class="c1">//创建一个临时的DirectBuffer实现类</span>
+    <span class="nc">ByteBuffer</span> <span class="n">bb</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">dst</span><span class="o">.</span><span class="na">remaining</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">directIO</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Util</span><span class="o">.</span><span class="na">checkRemainingBufferSizeAligned</span><span class="o">(</span><span class="n">rem</span><span class="o">,</span> <span class="n">alignment</span><span class="o">);</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="nc">Util</span><span class="o">.</span><span class="na">getTemporaryAlignedDirectBuffer</span><span class="o">(</span><span class="n">rem</span><span class="o">,</span> <span class="n">alignment</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="nc">Util</span><span class="o">.</span><span class="na">getTemporaryDirectBuffer</span><span class="o">(</span><span class="n">rem</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="c1">//读取到临时的实现类中</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">readIntoNativeBuffer</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">bb</span><span class="o">,</span> <span class="n">position</span><span class="o">,</span> <span class="n">directIO</span><span class="o">,</span> <span class="n">alignment</span><span class="o">,</span><span class="n">nd</span><span class="o">);</span>
+        <span class="n">bb</span><span class="o">.</span><span class="na">flip</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+          <span class="c1">//复制到非DirectBuffer接口实现的ByteBuffer对象中</span>
+            <span class="n">dst</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">bb</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">n</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="nc">Util</span><span class="o">.</span><span class="na">offerFirstTemporaryDirectBuffer</span><span class="o">(</span><span class="n">bb</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">readIntoNativeBuffer</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span> <span class="nc">ByteBuffer</span> <span class="n">bb</span><span class="o">,</span>
+                                        <span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">directIO</span><span class="o">,</span>
+                                        <span class="kt">int</span> <span class="n">alignment</span><span class="o">,</span> <span class="nc">NativeDispatcher</span> <span class="n">nd</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="kt">int</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="na">position</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">lim</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="na">limit</span><span class="o">();</span>
+    <span class="k">assert</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&lt;=</span> <span class="n">lim</span><span class="o">);</span>
+    <span class="kt">int</span> <span class="n">rem</span> <span class="o">=</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&lt;=</span> <span class="n">lim</span> <span class="o">?</span> <span class="n">lim</span> <span class="o">-</span> <span class="n">pos</span> <span class="o">:</span> <span class="mi">0</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">directIO</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Util</span><span class="o">.</span><span class="na">checkBufferPositionAligned</span><span class="o">(</span><span class="n">bb</span><span class="o">,</span> <span class="n">pos</span><span class="o">,</span> <span class="n">alignment</span><span class="o">);</span>
+        <span class="nc">Util</span><span class="o">.</span><span class="na">checkRemainingBufferSizeAligned</span><span class="o">(</span><span class="n">rem</span><span class="o">,</span> <span class="n">alignment</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">rem</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">position</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+      <span class="c1">//nd是FileDispatcherImpl对象</span>
+      <span class="c1">//指定position读取数据</span>
+      <span class="c1">//((DirectBuffer)bb).address()注意这个 把DirectBuffer实现类对应的用户空间的内存地址传递给native方法</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="na">pread</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="o">((</span><span class="nc">DirectBuffer</span><span class="o">)</span><span class="n">bb</span><span class="o">).</span><span class="na">address</span><span class="o">()</span> <span class="o">+</span> <span class="n">pos</span><span class="o">,</span> <span class="n">rem</span><span class="o">,</span> <span class="n">position</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="c1">//顺序读取数据</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="o">((</span><span class="nc">DirectBuffer</span><span class="o">)</span><span class="n">bb</span><span class="o">).</span><span class="na">address</span><span class="o">()</span> <span class="o">+</span> <span class="n">pos</span><span class="o">,</span> <span class="n">rem</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="n">bb</span><span class="o">.</span><span class="na">position</span><span class="o">(</span><span class="n">pos</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">n</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="c1">//FileDispatcherImpl中的方法</span>
+<span class="kt">int</span> <span class="nf">read</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span> <span class="kt">long</span> <span class="n">address</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+  <span class="c1">//native方法</span>
+    <span class="k">return</span> <span class="nf">read0</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">address</span><span class="o">,</span> <span class="n">len</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kt">int</span> <span class="nf">pread</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span> <span class="kt">long</span> <span class="n">address</span><span class="o">,</span> <span class="kt">int</span> <span class="n">len</span><span class="o">,</span> <span class="kt">long</span> <span class="n">position</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+  <span class="c1">//native方法</span>
+    <span class="k">return</span> <span class="nf">pread0</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">address</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">position</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_FileDispatcherImpl_read0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">clazz</span><span class="p">,</span>
+                             <span class="n">jobject</span> <span class="n">fdo</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">address</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdo</span><span class="p">);</span>
+  <span class="c1">//指针指向 DirectBuffer实现类对应的内存地址，所以没有堆外复制到堆内的操作</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">jlong_to_ptr</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+  <span class="c1">//最终调用read方法 </span>
+    <span class="k">return</span> <span class="n">convertReturnVal</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">),</span> <span class="n">JNI_TRUE</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_FileDispatcherImpl_pread0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">fdo</span><span class="p">,</span>
+                            <span class="n">jlong</span> <span class="n">address</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">offset</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdo</span><span class="p">);</span>
+  <span class="c1">//类似上面</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">jlong_to_ptr</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+  <span class="c1">//最终调用pread64方法</span>
+    <span class="k">return</span> <span class="n">convertReturnVal</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">pread64</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">offset</span><span class="p">),</span> <span class="n">JNI_TRUE</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>所以如果使用HeapByteBuffer整个过程和传统IO 差不多</p>
+
+<p><img src="../img/bioreadcopy.png" alt="bioreadcopy" /></p>
+
+<p>但是如果使用DirectBuffer实现类整个过程就少了一次复制，但是前提是这部分数据不会再堆内存中使用否则当你调用ByteBuffer的read的时候仍然会通过UnSafe类中的方法把数据复制到堆内存中</p>
+
+<p><img src="../img/nioreadcopy.png" alt="bioreadcopy" /></p>
+
+<h4 id="map方法实现">map方法实现</h4>
+
+<p>这个方法很长我门就看看我们关系的几行关键的代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">MappedByteBuffer</span> <span class="nf">map</span><span class="o">(</span><span class="nc">MapMode</span> <span class="n">mode</span><span class="o">,</span> <span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">size</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="n">ensureOpen</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">mode</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">(</span><span class="s">"Mode is null"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">position</span> <span class="o">&lt;</span> <span class="mi">0L</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Negative position"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">0L</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Negative size"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">position</span> <span class="o">+</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Position + size overflow"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">size</span> <span class="o">&gt;</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Size exceeds Integer.MAX_VALUE"</span><span class="o">);</span>
+
+    <span class="kt">int</span> <span class="n">imode</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">mode</span> <span class="o">==</span> <span class="nc">MapMode</span><span class="o">.</span><span class="na">READ_ONLY</span><span class="o">)</span>
+        <span class="n">imode</span> <span class="o">=</span> <span class="no">MAP_RO</span><span class="o">;</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">mode</span> <span class="o">==</span> <span class="nc">MapMode</span><span class="o">.</span><span class="na">READ_WRITE</span><span class="o">)</span>
+        <span class="n">imode</span> <span class="o">=</span> <span class="no">MAP_RW</span><span class="o">;</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">mode</span> <span class="o">==</span> <span class="nc">MapMode</span><span class="o">.</span><span class="na">PRIVATE</span><span class="o">)</span>
+        <span class="n">imode</span> <span class="o">=</span> <span class="no">MAP_PV</span><span class="o">;</span>
+    <span class="k">assert</span> <span class="o">(</span><span class="n">imode</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">mode</span> <span class="o">!=</span> <span class="nc">MapMode</span><span class="o">.</span><span class="na">READ_ONLY</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">writable</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonWritableChannelException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">readable</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonReadableChannelException</span><span class="o">();</span>
+
+    <span class="kt">long</span> <span class="n">addr</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">ti</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">beginBlocking</span><span class="o">();</span>
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="na">add</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">isOpen</span><span class="o">())</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="kt">long</span> <span class="n">mapSize</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">pagePosition</span><span class="o">;</span>
+        <span class="kd">synchronized</span> <span class="o">(</span><span class="n">positionLock</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">long</span> <span class="n">filesize</span><span class="o">;</span>
+            <span class="k">do</span> <span class="o">{</span>
+                <span class="n">filesize</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="na">size</span><span class="o">(</span><span class="n">fd</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">while</span> <span class="o">((</span><span class="n">filesize</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">INTERRUPTED</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">isOpen</span><span class="o">());</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">isOpen</span><span class="o">())</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">filesize</span> <span class="o">&lt;</span> <span class="n">position</span> <span class="o">+</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// Extend file size</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">writable</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IOException</span><span class="o">(</span><span class="s">"Channel not open for writing "</span> <span class="o">+</span>
+                        <span class="s">"- cannot extend file to required size"</span><span class="o">);</span>
+                <span class="o">}</span>
+                <span class="kt">int</span> <span class="n">rv</span><span class="o">;</span>
+                <span class="k">do</span> <span class="o">{</span>
+                    <span class="n">rv</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="na">truncate</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">position</span> <span class="o">+</span> <span class="n">size</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">while</span> <span class="o">((</span><span class="n">rv</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">INTERRUPTED</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">isOpen</span><span class="o">());</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">isOpen</span><span class="o">())</span>
+                    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">addr</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+                <span class="c1">// a valid file descriptor is not required</span>
+                <span class="nc">FileDescriptor</span> <span class="n">dummy</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileDescriptor</span><span class="o">();</span>
+                <span class="k">if</span> <span class="o">((!</span><span class="n">writable</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">imode</span> <span class="o">==</span> <span class="no">MAP_RO</span><span class="o">))</span>
+                    <span class="k">return</span> <span class="nc">Util</span><span class="o">.</span><span class="na">newMappedByteBufferR</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">dummy</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+                <span class="k">else</span>
+                    <span class="k">return</span> <span class="nc">Util</span><span class="o">.</span><span class="na">newMappedByteBuffer</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">dummy</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="n">pagePosition</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)(</span><span class="n">position</span> <span class="o">%</span> <span class="n">allocationGranularity</span><span class="o">);</span>
+            <span class="kt">long</span> <span class="n">mapPosition</span> <span class="o">=</span> <span class="n">position</span> <span class="o">-</span> <span class="n">pagePosition</span><span class="o">;</span>
+            <span class="n">mapSize</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="n">pagePosition</span><span class="o">;</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">// If map0 did not throw an exception, the address is valid</span>
+              <span class="c1">//=====这里返回一个内存地址map0是一个native方法=====</span>
+                <span class="n">addr</span> <span class="o">=</span> <span class="n">map0</span><span class="o">(</span><span class="n">imode</span><span class="o">,</span> <span class="n">mapPosition</span><span class="o">,</span> <span class="n">mapSize</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">OutOfMemoryError</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// An OutOfMemoryError may indicate that we've exhausted</span>
+                <span class="c1">// memory so force gc and re-attempt map</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">gc</span><span class="o">();</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="nc">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span>
+                <span class="o">}</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">addr</span> <span class="o">=</span> <span class="n">map0</span><span class="o">(</span><span class="n">imode</span><span class="o">,</span> <span class="n">mapPosition</span><span class="o">,</span> <span class="n">mapSize</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">OutOfMemoryError</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="c1">// After a second OOME, fail</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IOException</span><span class="o">(</span><span class="s">"Map failed"</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="c1">// synchronized</span>
+
+        <span class="c1">// On Windows, and potentially other platforms, we need an open</span>
+        <span class="c1">// file descriptor for some mapping operations.</span>
+        <span class="nc">FileDescriptor</span> <span class="n">mfd</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">mfd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="na">duplicateForMapping</span><span class="o">(</span><span class="n">fd</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">ioe</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">unmap0</span><span class="o">(</span><span class="n">addr</span><span class="o">,</span> <span class="n">mapSize</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="n">ioe</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">assert</span> <span class="o">(</span><span class="nc">IOStatus</span><span class="o">.</span><span class="na">checkAll</span><span class="o">(</span><span class="n">addr</span><span class="o">));</span>
+        <span class="k">assert</span> <span class="o">(</span><span class="n">addr</span> <span class="o">%</span> <span class="n">allocationGranularity</span> <span class="o">==</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">isize</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span><span class="n">size</span><span class="o">;</span>
+        <span class="nc">Unmapper</span> <span class="n">um</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Unmapper</span><span class="o">(</span><span class="n">addr</span><span class="o">,</span> <span class="n">mapSize</span><span class="o">,</span> <span class="n">isize</span><span class="o">,</span> <span class="n">mfd</span><span class="o">);</span>
+        <span class="c1">//=====用刚刚返回的地址创建一个DirectBuffer实现类=====</span>
+        <span class="k">if</span> <span class="o">((!</span><span class="n">writable</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">imode</span> <span class="o">==</span> <span class="no">MAP_RO</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">Util</span><span class="o">.</span><span class="na">newMappedByteBufferR</span><span class="o">(</span><span class="n">isize</span><span class="o">,</span>
+                                                <span class="n">addr</span> <span class="o">+</span> <span class="n">pagePosition</span><span class="o">,</span>
+                                                <span class="n">mfd</span><span class="o">,</span>
+                                                <span class="n">um</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">Util</span><span class="o">.</span><span class="na">newMappedByteBuffer</span><span class="o">(</span><span class="n">isize</span><span class="o">,</span>
+                                            <span class="n">addr</span> <span class="o">+</span> <span class="n">pagePosition</span><span class="o">,</span>
+                                            <span class="n">mfd</span><span class="o">,</span>
+                                            <span class="n">um</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">threads</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">ti</span><span class="o">);</span>
+        <span class="n">endBlocking</span><span class="o">(</span><span class="nc">IOStatus</span><span class="o">.</span><span class="na">checkAll</span><span class="o">(</span><span class="n">addr</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jlong</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_FileChannelImpl_map0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                     <span class="n">jint</span> <span class="n">prot</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">off</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">mapAddress</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="c1">//获取文件描述符</span>
+    <span class="n">jobject</span> <span class="n">fdo</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">chan_fd</span><span class="p">);</span>
+    <span class="n">jint</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdo</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">protections</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="c1">//权限共享标示转换</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">prot</span> <span class="o">==</span> <span class="n">sun_nio_ch_FileChannelImpl_MAP_RO</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">protections</span> <span class="o">=</span> <span class="n">PROT_READ</span><span class="p">;</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">MAP_SHARED</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">prot</span> <span class="o">==</span> <span class="n">sun_nio_ch_FileChannelImpl_MAP_RW</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">protections</span> <span class="o">=</span> <span class="n">PROT_WRITE</span> <span class="o">|</span> <span class="n">PROT_READ</span><span class="p">;</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">MAP_SHARED</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">prot</span> <span class="o">==</span> <span class="n">sun_nio_ch_FileChannelImpl_MAP_PV</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">protections</span> <span class="o">=</span>  <span class="n">PROT_WRITE</span> <span class="o">|</span> <span class="n">PROT_READ</span><span class="p">;</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">MAP_PRIVATE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+  <span class="c1">//成功返回映射的地址 mmap64是一个宏定义 #define mmap64 mmap</span>
+  <span class="c1">//mmap函数可以参考这里https://linux.die.net/man/2/mmap</span>
+    <span class="n">mapAddress</span> <span class="o">=</span> <span class="n">mmap64</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span>                    <span class="cm">/* Let OS decide location */</span>
+        <span class="n">len</span><span class="p">,</span>                  <span class="cm">/* Number of bytes to map */</span>
+        <span class="n">protections</span><span class="p">,</span>          <span class="cm">/* File permissions */</span>
+        <span class="n">flags</span><span class="p">,</span>                <span class="cm">/* Changes are shared */</span>
+        <span class="n">fd</span><span class="p">,</span>                   <span class="cm">/* File descriptor of mapped file */</span>
+        <span class="n">off</span><span class="p">);</span>                 <span class="cm">/* Offset into file */</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">mapAddress</span> <span class="o">==</span> <span class="n">MAP_FAILED</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">ENOMEM</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowOutOfMemoryError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Map failed"</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">IOS_THROWN</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">handle</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">"Map failed"</span><span class="p">);</span>
+    <span class="p">}</span>
+	<span class="c1">//返回地址</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">jlong</span><span class="p">)</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">mapAddress</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>mmap可以避免内核空间到用户空间的复制，他建立了一个映射实际上是同一个物理地址，然后把地址直接交给DirectBuffer实现类，也就是说这里取得一个ByteBuffer比传统IO少了2次复制</p>
+
+<p><img src="../img/linuxmmap.png" alt="bioreadcopy" /></p>
+
+<h4 id="transferto与transferfrom实现">transferTo与transferFrom实现</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">long</span> <span class="nf">transferTo</span><span class="o">(</span><span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">count</span><span class="o">,</span>
+                       <span class="nc">WritableByteChannel</span> <span class="n">target</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="n">ensureOpen</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">target</span><span class="o">.</span><span class="na">isOpen</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ClosedChannelException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">readable</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonReadableChannelException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">FileChannelImpl</span> <span class="o">&amp;&amp;</span>
+        <span class="o">!((</span><span class="nc">FileChannelImpl</span><span class="o">)</span><span class="n">target</span><span class="o">).</span><span class="na">writable</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonWritableChannelException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">position</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">))</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">();</span>
+    <span class="kt">long</span> <span class="n">sz</span> <span class="o">=</span> <span class="n">size</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">position</span> <span class="o">&gt;</span> <span class="n">sz</span><span class="o">)</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">icount</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span><span class="nc">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">count</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">sz</span> <span class="o">-</span> <span class="n">position</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">icount</span><span class="o">)</span>
+        <span class="n">icount</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)(</span><span class="n">sz</span> <span class="o">-</span> <span class="n">position</span><span class="o">);</span>
+
+    <span class="kt">long</span> <span class="n">n</span><span class="o">;</span>
+
+    <span class="c1">// Attempt a direct transfer, if the kernel supports it</span>
+  <span class="c1">//在linux系统中先使用sendfile</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">transferToDirectly</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">icount</span><span class="o">,</span> <span class="n">target</span><span class="o">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="k">return</span> <span class="n">n</span><span class="o">;</span>
+
+    <span class="c1">// Attempt a mapped transfer, but only to trusted channel types</span>
+  <span class="c1">//不行的话使用map+write</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">transferToTrustedChannel</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">icount</span><span class="o">,</span> <span class="n">target</span><span class="o">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">)</span>
+        <span class="k">return</span> <span class="n">n</span><span class="o">;</span>
+
+    <span class="c1">// Slow path for untrusted targets</span>
+  <span class="c1">//使用最原始的read+write</span>
+    <span class="k">return</span> <span class="nf">transferToArbitraryChannel</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">icount</span><span class="o">,</span> <span class="n">target</span><span class="o">);</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="kt">long</span> <span class="nf">transferFrom</span><span class="o">(</span><span class="nc">ReadableByteChannel</span> <span class="n">src</span><span class="o">,</span>
+                            <span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">count</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="n">ensureOpen</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">src</span><span class="o">.</span><span class="na">isOpen</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ClosedChannelException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">writable</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonWritableChannelException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">position</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">))</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">position</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">())</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+  <span class="c1">//如果来源是文件使用map加write</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">src</span> <span class="k">instanceof</span> <span class="nc">FileChannelImpl</span><span class="o">)</span>
+        <span class="k">return</span> <span class="nf">transferFromFileChannel</span><span class="o">((</span><span class="nc">FileChannelImpl</span><span class="o">)</span><span class="n">src</span><span class="o">,</span>
+                                        <span class="n">position</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+  <span class="c1">//不然使用最原始的read+wirte</span>
+    <span class="k">return</span> <span class="nf">transferFromArbitraryChannel</span><span class="o">(</span><span class="n">src</span><span class="o">,</span> <span class="n">position</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>其实这里有两个地方是可以进一步优化的，一个是transferFromArbitraryChannel与transferToArbitraryChannel的实现是使用了HeapByteBuffer这意味着数据还要在堆外内存到堆内的复制，单纯从复制次数上面来说，这一次复制可以被优化掉。</p>
+
+<p>第二个是transferFrom中也可以用sendfile实现因为在2.6.33以后的linux sendfile的目标设备可以是磁盘不仅仅限于socket 参考https://linux.die.net/man/2/sendfile64</p>
+
+<p>不过在实际使用中个人认为可以尽可能避免transferFrom，分析一下使用场景就能发现，都是块设备（文件是块设备）的时候可以把transferFrom转换成transferTo，来源是网络这类设备的时候传输到文件并不支持使用sendfile或者mmap系统调用会直接降级到最差read+write方式进行复制。</p>
+
+<p>我们继续看JDK的实现transferFrom类似不再单独分析</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">long</span> <span class="nf">transferToDirectly</span><span class="o">(</span><span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">int</span> <span class="n">icount</span><span class="o">,</span>
+                                <span class="nc">WritableByteChannel</span> <span class="n">target</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">transferSupported</span><span class="o">)</span>
+        <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED</span><span class="o">;</span>
+
+    <span class="nc">FileDescriptor</span> <span class="n">targetFD</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">FileChannelImpl</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">fileSupported</span><span class="o">)</span>
+            <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED_CASE</span><span class="o">;</span>
+        <span class="n">targetFD</span> <span class="o">=</span> <span class="o">((</span><span class="nc">FileChannelImpl</span><span class="o">)</span><span class="n">target</span><span class="o">).</span><span class="na">fd</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">SelChImpl</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Direct transfer to pipe causes EINVAL on some configurations</span>
+        <span class="k">if</span> <span class="o">((</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">SinkChannelImpl</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">pipeSupported</span><span class="o">)</span>
+            <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED_CASE</span><span class="o">;</span>
+
+        <span class="c1">// Platform-specific restrictions. Now there is only one:</span>
+        <span class="c1">// Direct transfer to non-blocking channel could be forbidden</span>
+        <span class="nc">SelectableChannel</span> <span class="n">sc</span> <span class="o">=</span> <span class="o">(</span><span class="nc">SelectableChannel</span><span class="o">)</span><span class="n">target</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">nd</span><span class="o">.</span><span class="na">canTransferToDirectly</span><span class="o">(</span><span class="n">sc</span><span class="o">))</span>
+            <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED_CASE</span><span class="o">;</span>
+
+        <span class="n">targetFD</span> <span class="o">=</span> <span class="o">((</span><span class="nc">SelChImpl</span><span class="o">)</span><span class="n">target</span><span class="o">).</span><span class="na">getFD</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">targetFD</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">thisFDVal</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">fdVal</span><span class="o">(</span><span class="n">fd</span><span class="o">);</span>
+    <span class="kt">int</span> <span class="n">targetFDVal</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">fdVal</span><span class="o">(</span><span class="n">targetFD</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">thisFDVal</span> <span class="o">==</span> <span class="n">targetFDVal</span><span class="o">)</span> <span class="c1">// Not supported on some configurations</span>
+        <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED</span><span class="o">;</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">nd</span><span class="o">.</span><span class="na">transferToDirectlyNeedsPositionLock</span><span class="o">())</span> <span class="o">{</span>
+        <span class="kd">synchronized</span> <span class="o">(</span><span class="n">positionLock</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">long</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">position</span><span class="o">();</span>
+            <span class="k">try</span> <span class="o">{</span>
+              <span class="c1">//这里进行复制</span>
+                <span class="k">return</span> <span class="nf">transferToDirectlyInternal</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">icount</span><span class="o">,</span>
+                                                  <span class="n">target</span><span class="o">,</span> <span class="n">targetFD</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                <span class="n">position</span><span class="o">(</span><span class="n">pos</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">transferToDirectlyInternal</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">icount</span><span class="o">,</span> <span class="n">target</span><span class="o">,</span> <span class="n">targetFD</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="kt">long</span> <span class="nf">transferFrom</span><span class="o">(</span><span class="nc">ReadableByteChannel</span> <span class="n">src</span><span class="o">,</span>
+                        <span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">count</span><span class="o">)</span>
+<span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+<span class="n">ensureOpen</span><span class="o">();</span>
+<span class="k">if</span> <span class="o">(!</span><span class="n">src</span><span class="o">.</span><span class="na">isOpen</span><span class="o">())</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">ClosedChannelException</span><span class="o">();</span>
+<span class="k">if</span> <span class="o">(!</span><span class="n">writable</span><span class="o">)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">NonWritableChannelException</span><span class="o">();</span>
+<span class="k">if</span> <span class="o">((</span><span class="n">position</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">))</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">();</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">position</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">())</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">src</span> <span class="k">instanceof</span> <span class="nc">FileChannelImpl</span><span class="o">)</span>
+    <span class="k">return</span> <span class="nf">transferFromFileChannel</span><span class="o">((</span><span class="nc">FileChannelImpl</span><span class="o">)</span><span class="n">src</span><span class="o">,</span>
+                                    <span class="n">position</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+
+<span class="k">return</span> <span class="nf">transferFromArbitraryChannel</span><span class="o">(</span><span class="n">src</span><span class="o">,</span> <span class="n">position</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">long</span> <span class="nf">transferToDirectlyInternal</span><span class="o">(</span><span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">int</span> <span class="n">icount</span><span class="o">,</span>
+                                        <span class="nc">WritableByteChannel</span> <span class="n">target</span><span class="o">,</span>
+                                        <span class="nc">FileDescriptor</span> <span class="n">targetFD</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="k">assert</span> <span class="o">!</span><span class="n">nd</span><span class="o">.</span><span class="na">transferToDirectlyNeedsPositionLock</span><span class="o">()</span> <span class="o">||</span>
+            <span class="nc">Thread</span><span class="o">.</span><span class="na">holdsLock</span><span class="o">(</span><span class="n">positionLock</span><span class="o">);</span>
+
+    <span class="kt">long</span> <span class="n">n</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">ti</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">beginBlocking</span><span class="o">();</span>
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="na">add</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">isOpen</span><span class="o">())</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="k">do</span> <span class="o">{</span>
+            <span class="c1">//这里进行复制 调用native方法</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">transferTo0</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">position</span><span class="o">,</span> <span class="n">icount</span><span class="o">,</span> <span class="n">targetFD</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">while</span> <span class="o">((</span><span class="n">n</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">INTERRUPTED</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">isOpen</span><span class="o">());</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED_CASE</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">SinkChannelImpl</span><span class="o">)</span>
+                <span class="n">pipeSupported</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">FileChannelImpl</span><span class="o">)</span>
+                <span class="n">fileSupported</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED_CASE</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Don't bother trying again</span>
+            <span class="n">transferSupported</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">normalize</span><span class="o">(</span><span class="n">n</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">threads</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">ti</span><span class="o">);</span>
+        <span class="n">end</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">//mmap方式复制</span>
+<span class="kd">private</span> <span class="kt">long</span> <span class="nf">transferToTrustedChannel</span><span class="o">(</span><span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">count</span><span class="o">,</span>
+                                        <span class="nc">WritableByteChannel</span> <span class="n">target</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="kt">boolean</span> <span class="n">isSelChImpl</span> <span class="o">=</span> <span class="o">(</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">SelChImpl</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(!((</span><span class="n">target</span> <span class="k">instanceof</span> <span class="nc">FileChannelImpl</span><span class="o">)</span> <span class="o">||</span> <span class="n">isSelChImpl</span><span class="o">))</span>
+        <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">UNSUPPORTED</span><span class="o">;</span>
+
+    <span class="c1">// Trusted target: Use a mapped buffer</span>
+    <span class="kt">long</span> <span class="n">remaining</span> <span class="o">=</span> <span class="n">count</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">remaining</span> <span class="o">&gt;</span> <span class="mi">0L</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">long</span> <span class="n">size</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">remaining</span><span class="o">,</span> <span class="no">MAPPED_TRANSFER_SIZE</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+          <span class="c1">//通过mmap系统调用获取ByteBuffer 这个前面介绍过</span>
+            <span class="nc">MappedByteBuffer</span> <span class="n">dbb</span> <span class="o">=</span> <span class="n">map</span><span class="o">(</span><span class="nc">MapMode</span><span class="o">.</span><span class="na">READ_ONLY</span><span class="o">,</span> <span class="n">position</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">// ## Bug: Closing this channel will not terminate the write</span>
+              <span class="c1">//调用write写入 因为MappedByteBuffer的实现类会实现DirectBuffer接口所以不会有堆内的复制</span>
+              <span class="c1">//dbb关联的内存地址会直接被放入系统调用write中，所以也不需要用户空间和内核空间的复制</span>
+                <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">dbb</span><span class="o">);</span>
+                <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">;</span>
+                <span class="n">remaining</span> <span class="o">-=</span> <span class="n">n</span><span class="o">;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">isSelChImpl</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="c1">// one attempt to write to selectable channel</span>
+                    <span class="k">break</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">;</span>
+                <span class="n">position</span> <span class="o">+=</span> <span class="n">n</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                <span class="n">unmap</span><span class="o">(</span><span class="n">dbb</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ClosedByInterruptException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// target closed by interrupt as ClosedByInterruptException needs</span>
+            <span class="c1">// to be thrown after closing this channel.</span>
+            <span class="k">assert</span> <span class="o">!</span><span class="n">target</span><span class="o">.</span><span class="na">isOpen</span><span class="o">();</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">close</span><span class="o">();</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">suppressed</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">addSuppressed</span><span class="o">(</span><span class="n">suppressed</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">ioe</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Only throw exception if no bytes have been written</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">remaining</span> <span class="o">==</span> <span class="n">count</span><span class="o">)</span>
+                <span class="k">throw</span> <span class="n">ioe</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">count</span> <span class="o">-</span> <span class="n">remaining</span><span class="o">;</span>
+<span class="o">}</span>
+
+
+<span class="kd">private</span> <span class="kt">long</span> <span class="nf">transferToArbitraryChannel</span><span class="o">(</span><span class="kt">long</span> <span class="n">position</span><span class="o">,</span> <span class="kt">int</span> <span class="n">icount</span><span class="o">,</span>
+                                        <span class="nc">WritableByteChannel</span> <span class="n">target</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="c1">// Untrusted target: Use a newly-erased buffer</span>
+    <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">icount</span><span class="o">,</span> <span class="no">TRANSFER_SIZE</span><span class="o">);</span>
+  <span class="c1">//这里拿到的是堆内存的ByteBuffer</span>
+    <span class="nc">ByteBuffer</span> <span class="n">bb</span> <span class="o">=</span> <span class="nc">ByteBuffer</span><span class="o">.</span><span class="na">allocate</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+    <span class="kt">long</span> <span class="n">tw</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>                    <span class="c1">// Total bytes written</span>
+    <span class="kt">long</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">position</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">tw</span> <span class="o">&lt;</span> <span class="n">icount</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">bb</span><span class="o">.</span><span class="na">limit</span><span class="o">(</span><span class="nc">Math</span><span class="o">.</span><span class="na">min</span><span class="o">((</span><span class="kt">int</span><span class="o">)(</span><span class="n">icount</span> <span class="o">-</span> <span class="n">tw</span><span class="o">),</span> <span class="no">TRANSFER_SIZE</span><span class="o">));</span>
+          <span class="c1">//DMA到内核到用户空间到堆内</span>
+            <span class="kt">int</span> <span class="n">nr</span> <span class="o">=</span> <span class="n">read</span><span class="o">(</span><span class="n">bb</span><span class="o">,</span> <span class="n">pos</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">nr</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="n">bb</span><span class="o">.</span><span class="na">flip</span><span class="o">();</span>
+            <span class="c1">// ## Bug: Will block writing target if this channel</span>
+            <span class="c1">// ##      is asynchronously closed</span>
+          <span class="c1">//堆内到堆外到内核空间。。。</span>
+            <span class="kt">int</span> <span class="n">nw</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">bb</span><span class="o">);</span>
+            <span class="n">tw</span> <span class="o">+=</span> <span class="n">nw</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">nw</span> <span class="o">!=</span> <span class="n">nr</span><span class="o">)</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="n">pos</span> <span class="o">+=</span> <span class="n">nw</span><span class="o">;</span>
+            <span class="n">bb</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">tw</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tw</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="k">return</span> <span class="n">tw</span><span class="o">;</span>
+        <span class="k">throw</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>我这里省略了非linux的代码</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jlong</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_FileChannelImpl_transferTo0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                            <span class="n">jobject</span> <span class="n">srcFDO</span><span class="p">,</span>
+                                            <span class="n">jlong</span> <span class="n">position</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">count</span><span class="p">,</span>
+                                            <span class="n">jobject</span> <span class="n">dstFDO</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">srcFD</span> <span class="o">=</span> <span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">srcFDO</span><span class="p">);</span>
+    <span class="n">jint</span> <span class="n">dstFD</span> <span class="o">=</span> <span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">dstFDO</span><span class="p">);</span>
+
+<span class="cp">#if defined(__linux__)
+</span>    <span class="n">off64_t</span> <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">off64_t</span><span class="p">)</span><span class="n">position</span><span class="p">;</span>
+  <span class="c1">//参考https://linux.die.net/man/2/sendfile64</span>
+    <span class="n">jlong</span> <span class="n">n</span> <span class="o">=</span> <span class="n">sendfile64</span><span class="p">(</span><span class="n">dstFD</span><span class="p">,</span> <span class="n">srcFD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">offset</span><span class="p">,</span> <span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">count</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EAGAIN</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">IOS_UNAVAILABLE</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINVAL</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">((</span><span class="kt">ssize_t</span><span class="p">)</span><span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">IOS_UNSUPPORTED_CASE</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINTR</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">IOS_INTERRUPTED</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">JNU_ThrowIOExceptionWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Transfer failed"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">IOS_THROWN</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+<span class="cp">#elif defined (__solaris__)
+</span>  <span class="p">...</span>
+<span class="cp">#elif defined(__APPLE__)
+</span>    <span class="p">...</span>
+<span class="cp">#elif defined(_AIX)
+</span>    <span class="p">...</span>
+<span class="cp">#else
+</span>    <span class="k">return</span> <span class="n">IOS_UNSUPPORTED_CASE</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>所以transferTo存在3种情况</p>
+
+<p>sendfile方式</p>
+
+<p><img src="../img/sendfilecopy.png" alt="bioreadcopy" /></p>
+
+<p>mmap方式</p>
+
+<p><img src="../img/mmapcopy.png" alt="bioreadcopy" /></p>
+
+<p>read+write方式</p>
+
+<p><img src="../img/javafilecopybad.png" alt="bioreadcopy" /></p>
+
+<h3 id="直接io">直接IO</h3>
+
+<p>我们通过传统io获得的FileChannel都是非直接IO</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">FileChannel</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">fileInputStream</span><span class="o">.</span><span class="na">getChannel</span><span class="o">();</span>
+<span class="nc">FileChannel</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">fileOutputStream</span><span class="o">.</span><span class="na">getChannel</span><span class="o">();</span>
+<span class="nc">FileChannel</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">randomAccessFile</span><span class="o">.</span><span class="na">getChannel</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>我们可以这样获取一个直接IO的FileChannel</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">FileChannel</span> <span class="n">fileChannel</span> <span class="o">=</span> <span class="nc">FileChannel</span><span class="o">.</span><span class="na">open</span><span class="o">(</span><span class="n">path</span><span class="o">,</span> <span class="nc">ExtendedOpenOption</span><span class="o">.</span><span class="na">DIRECT</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>我们不再去一步一步跟踪这个open的实现了他最终调用了FileChannelImpl类的方法</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">FileChannel</span> <span class="nf">open</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span> <span class="nc">String</span> <span class="n">path</span><span class="o">,</span>
+                               <span class="kt">boolean</span> <span class="n">readable</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">writable</span><span class="o">,</span>
+                               <span class="kt">boolean</span> <span class="n">direct</span><span class="o">,</span> <span class="nc">Object</span> <span class="n">parent</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">FileChannelImpl</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">readable</span><span class="o">,</span> <span class="n">writable</span><span class="o">,</span> <span class="n">direct</span><span class="o">,</span> <span class="n">parent</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>但是通过传统io获得的FileChannel直接使用传统IO的文件描述符，而这个open会自己创建新的文件描述符，这是最后调用的native方法的实现</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_fs_UnixNativeDispatcher_open0</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">this</span><span class="p">,</span>
+    <span class="n">jlong</span> <span class="n">pathAddress</span><span class="p">,</span> <span class="n">jint</span> <span class="n">oflags</span><span class="p">,</span> <span class="n">jint</span> <span class="n">mode</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">path</span> <span class="o">=</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">jlong_to_ptr</span><span class="p">(</span><span class="n">pathAddress</span><span class="p">);</span>
+
+    <span class="n">RESTARTABLE</span><span class="p">(</span><span class="n">open64</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">oflags</span><span class="p">,</span> <span class="p">(</span><span class="n">mode_t</span><span class="p">)</span><span class="n">mode</span><span class="p">),</span> <span class="n">fd</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">throwUnixException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>ExtendedOpenOption.DIRECT会转化成oflags中的O_DIRECT可以参考这个地址中https://linux.die.net/man/2/open</p>
+
+<blockquote>
+  <p><strong>O_DIRECT</strong> (Since Linux 2.4.10)</p>
+
+  <p>Try to minimize cache effects of the I/O to and from this file. In general this will degrade performance, but it is useful in special situations, such as when applications do their own caching. File I/O is done directly to/from user-space buffers. The <strong>O_DIRECT</strong> flag on its own makes an effort to transfer data synchronously, but does not give the guarantees of the <strong>O_SYNC</strong> flag that data and necessary metadata are transferred. To guarantee synchronous I/O, <strong>O_SYNC</strong> must be used in addition to <strong>O_DIRECT</strong>. See NOTES below for further discussion.</p>
+</blockquote>
+
+<p><img src="../img/directioNio.png" alt="bioreadcopy" /></p>
+
+<p>直接io可以避免一次复制但是他失去了系统提供的页缓存，所以会造成频繁操作IO，不过对于一些自己去维护缓存的应用来说直接IO会非常有用，大家应该自己根据场景去评估是否使用直接IO。</p>
+
+</div>
+
+
+
+<div class="pagination">
+  
+  
+    <a href="/2021-01-19/%E4%B8%9A%E5%8A%A1%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1" class="right arrow">下一篇&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <footer>
+  <span>
+    &copy; <time datetime="2021-02-05 18:02:39 +0800">2021</time> 凯帆. Made with Jekyll using the Tale theme.
+  </span>
+</footer>
+
+  </body>
+</html>
