@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Java网络IO | Kaifan&amp;Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Java网络IO" />
+<meta name="author" content="凯帆" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="本文只考虑Linux系统" />
+<meta property="og:description" content="本文只考虑Linux系统" />
+<link rel="canonical" href="/2021-02-25/Java%E7%BD%91%E7%BB%9CIO" />
+<meta property="og:url" content="/2021-02-25/Java%E7%BD%91%E7%BB%9CIO" />
+<meta property="og:site_name" content="Kaifan&amp;Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-25T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Java网络IO" />
+<script type="application/ld+json">
+{"url":"/2021-02-25/Java%E7%BD%91%E7%BB%9CIO","author":{"@type":"Person","name":"凯帆"},"headline":"Java网络IO","datePublished":"2021-02-25T00:00:00+08:00","dateModified":"2021-02-25T00:00:00+08:00","description":"本文只考虑Linux系统","mainEntityOfPage":{"@type":"WebPage","@id":"/2021-02-25/Java%E7%BD%91%E7%BB%9CIO"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"/>
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"> -->
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Kaifan&amp;Blog" />
+
+  <!-- Google Analytics-->
+  
+
+
+  <!-- 百度统计 -->
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?c441094a03e224f52920af74485f3482";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Kaifan&Blog</h2>
+    </a>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/tags">Tags</a></li>
+      <li><a href="/reading">Reading</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        凯帆
+    
+
+    
+      <br>
+      <span>发布于&nbsp;</span><time datetime="2021-02-25 00:00:00 +0800">2021年02月25日</time>
+    
+  </div>
+
+  <h1 class="post-title">Java网络IO</h1>
+  <div class="post-line"></div>
+
+  <p>本文只考虑Linux系统</p>
+
+<h3 id="传统io">传统IO</h3>
+
+<ul>
+  <li>ServerSocket</li>
+  <li>Socket</li>
+</ul>
+
+<p>首先通常c语言中访问网络</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">//创建socket描述符</span>
+    <span class="kt">int</span> <span class="n">socketfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="n">IPPROTO_TCP</span><span class="p">);</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">servaddr</span><span class="p">;</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">inet_addr</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">);</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="mi">8840</span><span class="p">);</span>
+  <span class="c1">//绑定地址</span>
+    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">bind</span><span class="p">(</span><span class="n">socketfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"listen error"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="c1">//开启监听</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">listen</span><span class="p">(</span><span class="n">socketfd</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"listen error"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">clientAddr</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">clientAddrLen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">clientAddr</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+      <span class="c1">//接收连接请求，其实操作系统会把3次握手完成后才返回给我们</span>
+        <span class="kt">int</span> <span class="n">clientFd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">socketfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">clientAddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">clientAddrLen</span><span class="p">);</span>
+      <span class="c1">//创建一个新的进程去处理连接</span>
+        <span class="n">pid_t</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">();</span>
+      <span class="c1">//子进程进入这个循环体</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">pid</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">};</span>
+            <span class="n">read</span><span class="p">(</span><span class="n">clientFd</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="mi">8</span><span class="p">);</span>
+            <span class="n">write</span><span class="p">(</span><span class="n">clientFd</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="mi">8</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="sc">'q'</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"close(clientFd); </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">close</span><span class="p">(</span><span class="n">clientFd</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="c1">//父进程直接关闭这个链接，其实只是关闭了一个进程和描述符的联系，只要还有一个进程和该描述符有关联描述符就不会关闭</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">clientFd</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>所以在使用c语言直接使用系统调用提供一个服务时需要如下几个步骤</p>
+
+<ul>
+  <li>socket 创建一个socket</li>
+  <li>bind 为一个socket绑定地址</li>
+  <li>listen 开始监听 服务这时已经启动</li>
+  <li>accept 获取客户端的链接 会返回一个新的描述符号，如果是阻塞模式下这里会阻塞到有新的请求</li>
+  <li>read&amp;write 使用新的描述符进行操作（也可以使用recv&amp;send）</li>
+</ul>
+
+<p>现在我们回到Java代码中实现一个类似的功能我们主要在系统调用的层面去看这些类的实现原理，不会过多的去关系jdk的实现细节</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//创建一个ServerSocket对象不会做任何系统调用</span>
+<span class="nc">ServerSocket</span> <span class="n">serverSocket</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ServerSocket</span><span class="o">();</span>
+<span class="c1">//这里回做很多事情socket  bind  listen  这行代码执行后服务就已经启动了</span>
+<span class="n">serverSocket</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="s">"127.0.0.1"</span><span class="o">,</span><span class="mi">36352</span><span class="o">));</span>
+<span class="c1">//获取一个连接 accept系统调用</span>
+<span class="nc">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">serverSocket</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+<span class="c1">//使用新的链接进行读写操作</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">().</span><span class="na">read</span><span class="o">();</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">().</span><span class="na">write</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>先来看一下bind方法</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">bind</span><span class="o">(</span><span class="nc">SocketAddress</span> <span class="n">endpoint</span><span class="o">,</span> <span class="kt">int</span> <span class="n">backlog</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">isClosed</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Socket is closed"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">oldImpl</span> <span class="o">&amp;&amp;</span> <span class="n">isBound</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Already bound"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">endpoint</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(!(</span><span class="n">endpoint</span> <span class="k">instanceof</span> <span class="nc">InetSocketAddress</span><span class="o">))</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Unsupported address type"</span><span class="o">);</span>
+    <span class="nc">InetSocketAddress</span> <span class="n">epoint</span> <span class="o">=</span> <span class="o">(</span><span class="nc">InetSocketAddress</span><span class="o">)</span> <span class="n">endpoint</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">epoint</span><span class="o">.</span><span class="na">isUnresolved</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Unresolved address"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">backlog</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">)</span>
+        <span class="n">backlog</span> <span class="o">=</span> <span class="mi">50</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="nc">SecurityManager</span> <span class="n">security</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getSecurityManager</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">security</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">security</span><span class="o">.</span><span class="na">checkListen</span><span class="o">(</span><span class="n">epoint</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+      <span class="c1">//功能实现都在这里2行</span>
+      <span class="c1">//第一次调用getImpl()回去调用socket系统调用创建socket</span>
+      <span class="c1">//bind直接对应bind系统调用</span>
+        <span class="n">getImpl</span><span class="o">().</span><span class="na">bind</span><span class="o">(</span><span class="n">epoint</span><span class="o">.</span><span class="na">getAddress</span><span class="o">(),</span> <span class="n">epoint</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+      <span class="c1">//listen直接对应listen系统调用</span>
+        <span class="n">getImpl</span><span class="o">().</span><span class="na">listen</span><span class="o">(</span><span class="n">backlog</span><span class="o">);</span>
+        <span class="n">bound</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="nc">SecurityException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">bound</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">bound</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="nc">SocketImpl</span> <span class="nf">getImpl</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">SocketException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">created</span><span class="o">)</span>
+        <span class="n">createImpl</span><span class="o">();</span>
+    <span class="k">return</span> <span class="n">impl</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="kt">void</span> <span class="nf">createImpl</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">SocketException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">impl</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">setImpl</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">impl</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">created</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* AbstractPlainSocketImpl
+*/</span>
+<span class="kd">protected</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">create</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">stream</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">stream</span> <span class="o">=</span> <span class="n">stream</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">stream</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ResourceManager</span><span class="o">.</span><span class="na">beforeUdpCreate</span><span class="o">();</span>
+        <span class="c1">// only create the fd after we know we will be able to create the socket</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileDescriptor</span><span class="o">();</span>
+        <span class="k">try</span> <span class="o">{</span>
+  				<span class="c1">//在PlainSocketImpl类中声明为native方法 </span>
+            <span class="n">socketCreate</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+            <span class="nc">SocketCleanable</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">ioe</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">ResourceManager</span><span class="o">.</span><span class="na">afterUdpClose</span><span class="o">();</span>
+            <span class="n">fd</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="k">throw</span> <span class="n">ioe</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileDescriptor</span><span class="o">();</span>
+  		<span class="c1">//在PlainSocketImpl类中声明为native方法 </span>
+        <span class="n">socketCreate</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="nc">SocketCleanable</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">socket</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">socket</span><span class="o">.</span><span class="na">setCreated</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">serverSocket</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">serverSocket</span><span class="o">.</span><span class="na">setCreated</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="kd">protected</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">bind</span><span class="o">(</span><span class="nc">InetAddress</span> <span class="n">address</span><span class="o">,</span> <span class="kt">int</span> <span class="n">lport</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">fdLock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">closePending</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">socket</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">socket</span><span class="o">.</span><span class="na">isBound</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="nc">NetHooks</span><span class="o">.</span><span class="na">beforeTcpBind</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">address</span><span class="o">,</span> <span class="n">lport</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="c1">//在PlainSocketImpl类中声明为native方法 </span>
+    <span class="n">socketBind</span><span class="o">(</span><span class="n">address</span><span class="o">,</span> <span class="n">lport</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">socket</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">socket</span><span class="o">.</span><span class="na">setBound</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">serverSocket</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">serverSocket</span><span class="o">.</span><span class="na">setBound</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">protected</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">listen</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+  <span class="c1">//在PlainSocketImpl类中声明为native方法 </span>
+    <span class="n">socketListen</span><span class="o">(</span><span class="n">count</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>可以看到在bind方法中就完成一个socket的create、bind、listen三个过程，接着单我们调用accept的时候</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">Socket</span> <span class="nf">accept</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">isClosed</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Socket is closed"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">isBound</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Socket is not bound yet"</span><span class="o">);</span>
+  <span class="c1">//创建一个新的Socket对象用于处理客户端的请求</span>
+    <span class="nc">Socket</span> <span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Socket</span><span class="o">((</span><span class="nc">SocketImpl</span><span class="o">)</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="n">implAccept</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">protected</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">implAccept</span><span class="o">(</span><span class="nc">Socket</span> <span class="n">s</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="nc">SocketImpl</span> <span class="n">si</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="c1">//这里基本就是初始化一下Socket</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">impl</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="na">setImpl</span><span class="o">();</span>
+        <span class="k">else</span> <span class="o">{</span>
+            <span class="n">s</span><span class="o">.</span><span class="na">impl</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="n">si</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">impl</span><span class="o">;</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">impl</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="c1">//这里InetAddress和FileDescriptor会在c代码中设置进去</span>
+        <span class="n">si</span><span class="o">.</span><span class="na">address</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">InetAddress</span><span class="o">();</span>
+        <span class="n">si</span><span class="o">.</span><span class="na">fd</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileDescriptor</span><span class="o">();</span>
+      
+      <span class="c1">//看下面</span>
+        <span class="n">getImpl</span><span class="o">().</span><span class="na">accept</span><span class="o">(</span><span class="n">si</span><span class="o">);</span>
+        <span class="nc">SocketCleanable</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">si</span><span class="o">.</span><span class="na">fd</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>   <span class="c1">// raw fd has been set</span>
+
+        <span class="nc">SecurityManager</span> <span class="n">security</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getSecurityManager</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">security</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">security</span><span class="o">.</span><span class="na">checkAccept</span><span class="o">(</span><span class="n">si</span><span class="o">.</span><span class="na">getInetAddress</span><span class="o">().</span><span class="na">getHostAddress</span><span class="o">(),</span>
+                                    <span class="n">si</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">si</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">si</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">impl</span> <span class="o">=</span> <span class="n">si</span><span class="o">;</span>
+        <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">SecurityException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">si</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">si</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">impl</span> <span class="o">=</span> <span class="n">si</span><span class="o">;</span>
+        <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="n">s</span><span class="o">.</span><span class="na">impl</span> <span class="o">=</span> <span class="n">si</span><span class="o">;</span>
+    <span class="n">s</span><span class="o">.</span><span class="na">postAccept</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+* AbstractPlainSocketImpl
+*/</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">accept</span><span class="o">(</span><span class="nc">SocketImpl</span> <span class="n">s</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+  	<span class="n">acquireFD</span><span class="o">();</span>
+  	<span class="k">try</span> <span class="o">{</span>
+		  <span class="c1">//在PlainSocketImpl类中声明为native方法 </span>
+        <span class="n">socketAccept</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+  	<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">releaseFD</span><span class="o">();</span>
+  	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>看一下native的实现</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+* PlainSocketImpl 这个文件在不同操作系统下面有不同实现，我们看的是unix系统的实现
+*/</span>
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_net_PlainSocketImpl_socketCreate</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                           <span class="n">jboolean</span> <span class="n">stream</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">jobject</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">ssObj</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+  <span class="c1">//tcp还是udp</span>
+    <span class="kt">int</span> <span class="n">type</span> <span class="o">=</span> <span class="p">(</span><span class="n">stream</span> <span class="o">?</span> <span class="n">SOCK_STREAM</span> <span class="o">:</span> <span class="n">SOCK_DGRAM</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">domain</span> <span class="o">=</span> <span class="n">ipv6_available</span><span class="p">()</span> <span class="o">?</span> <span class="n">AF_INET6</span> <span class="o">:</span> <span class="n">AF_INET</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">socketExceptionCls</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">jclass</span> <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">FindClass</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/net/SocketException"</span><span class="p">);</span>
+        <span class="n">CHECK_NULL</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+        <span class="n">socketExceptionCls</span> <span class="o">=</span> <span class="p">(</span><span class="n">jclass</span><span class="p">)(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">NewGlobalRef</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+        <span class="n">CHECK_NULL</span><span class="p">(</span><span class="n">socketExceptionCls</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">fdObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_fdID</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fdObj</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ThrowNew</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">socketExceptionCls</span><span class="p">,</span> <span class="s">"null fd object"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="c1">//创建socket</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* note: if you run out of fds, you may not be able to load
+         * the exception class, and get a NoClassDefFoundError
+         * instead.
+         */</span>
+        <span class="n">NET_ThrowNew</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">,</span> <span class="s">"can't create socket"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* Disable IPV6_V6ONLY to ensure dual-socket support */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">domain</span> <span class="o">==</span> <span class="n">AF_INET6</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">IPPROTO_IPV6</span><span class="p">,</span> <span class="n">IPV6_V6ONLY</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span>
+                       <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowNew</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">,</span> <span class="s">"cannot set IPPROTO_IPV6"</span><span class="p">);</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+     * If this is a server socket then enable SO_REUSEADDR
+     * automatically and set to non blocking.
+     */</span>
+    <span class="n">ssObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_serverSocketID</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ssObj</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="c1">//设置为非阻塞</span>
+        <span class="n">SET_NONBLOCKING</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">NET_SetSockOpt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span>
+                       <span class="k">sizeof</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowNew</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">,</span> <span class="s">"cannot set SO_REUSEADDR"</span><span class="p">);</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="c1">//设置描述符</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_net_PlainSocketImpl_socketBind</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                         <span class="n">jobject</span> <span class="n">iaObj</span><span class="p">,</span> <span class="n">jint</span> <span class="n">localport</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="cm">/* fdObj is the FileDescriptor field on this */</span>
+    <span class="n">jobject</span> <span class="n">fdObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_fdID</span><span class="p">);</span>
+    <span class="cm">/* fd is an int field on fdObj */</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">SOCKETADDRESS</span> <span class="n">sa</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">fdObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                        <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">//拿到描述符</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">iaObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"iaObj is null."</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* bind */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">NET_InetAddressToSockaddr</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">iaObj</span><span class="p">,</span> <span class="n">localport</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span>
+                                  <span class="o">&amp;</span><span class="n">len</span><span class="p">,</span> <span class="n">JNI_TRUE</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">setDefaultScopeID</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">);</span>
+
+  <span class="c1">//NET_Bind内部调用bind系统调用</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">NET_Bind</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="n">len</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EADDRINUSE</span> <span class="o">||</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EADDRNOTAVAIL</span> <span class="o">||</span>
+            <span class="n">errno</span> <span class="o">==</span> <span class="n">EPERM</span> <span class="o">||</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EACCES</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"BindException"</span><span class="p">,</span>
+                           <span class="s">"Bind failed"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Bind failed"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* set the address */</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_addressID</span><span class="p">,</span> <span class="n">iaObj</span><span class="p">);</span>
+
+    <span class="cm">/* initialize the local port */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">localport</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">socklen_t</span> <span class="n">slen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SOCKETADDRESS</span><span class="p">);</span>
+        <span class="cm">/* Now that we're a connected socket, let's extract the port number
+         * that the system chose for us and store it in the Socket object.
+         */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">getsockname</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">slen</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Error getting socket name"</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">localport</span> <span class="o">=</span> <span class="n">NET_GetPortFromSockaddr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sa</span><span class="p">);</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_localportID</span><span class="p">,</span> <span class="n">localport</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_localportID</span><span class="p">,</span> <span class="n">localport</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_net_PlainSocketImpl_socketListen</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                           <span class="n">jint</span> <span class="n">count</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* this FileDescriptor fd field */</span>
+    <span class="n">jobject</span> <span class="n">fdObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_fdID</span><span class="p">);</span>
+    <span class="cm">/* fdObj's int fd field */</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">fdObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                        <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+     * Workaround for bugid 4101691 in Solaris 2.6. See 4106600.
+     * If listen backlog is Integer.MAX_VALUE then subtract 1.
+     */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mh">0x7fffffff</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+
+  <span class="c1">//调用listen系统调用</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">listen</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+            <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Listen failed"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_net_PlainSocketImpl_socketAccept</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                           <span class="n">jobject</span> <span class="n">socket</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* fields on this */</span>
+    <span class="kt">int</span> <span class="n">port</span><span class="p">;</span>
+    <span class="n">jint</span> <span class="n">timeout</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_timeoutID</span><span class="p">);</span>
+    <span class="n">jlong</span> <span class="n">prevNanoTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">jlong</span> <span class="n">nanoTimeout</span> <span class="o">=</span> <span class="p">(</span><span class="n">jlong</span><span class="p">)</span> <span class="n">timeout</span> <span class="o">*</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">;</span>
+    <span class="n">jobject</span> <span class="n">fdObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_fdID</span><span class="p">);</span>
+
+    <span class="cm">/* the FileDescriptor field on socket */</span>
+    <span class="n">jobject</span> <span class="n">socketFdObj</span><span class="p">;</span>
+    <span class="cm">/* the InetAddress field on socket */</span>
+    <span class="n">jobject</span> <span class="n">socketAddressObj</span><span class="p">;</span>
+
+    <span class="cm">/* the ServerSocket fd int field on fdObj */</span>
+    <span class="n">jint</span> <span class="n">fd</span><span class="p">;</span>
+
+    <span class="cm">/* accepted fd */</span>
+  <span class="c1">//接收到的描述符</span>
+    <span class="n">jint</span> <span class="n">newfd</span><span class="p">;</span>
+
+    <span class="n">SOCKETADDRESS</span> <span class="n">sa</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">slen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SOCKETADDRESS</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">fdObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                        <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">socket</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"socket is null"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+     * accept connection but ignore ECONNABORTED indicating that
+     * connection was eagerly accepted by the OS but was reset
+     * before accept() was called.
+     *
+     * If accept timeout in place and timeout is adjusted with
+     * each ECONNABORTED or EWOULDBLOCK or EAGAIN to ensure that
+     * semantics of timeout are preserved.
+     */</span>
+  <span class="c1">//这里for循环是因为实现超时，之前说过服务端socket是非阻塞的，然后这里通过循环调用accept，取得连接或者超时</span>
+  <span class="c1">//setSoTimeout()设置超时时间</span>
+    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+        <span class="n">jlong</span> <span class="n">currNanoTime</span><span class="p">;</span>
+
+        <span class="cm">/* first usage pick up current time */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">prevNanoTime</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">nanoTimeout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">prevNanoTime</span> <span class="o">=</span> <span class="n">JVM_NanoTime</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="cm">/* passing a timeout of 0 to poll will return immediately,
+           but in the case of ServerSocket 0 means infinite. */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">timeout</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">NET_Timeout</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">NET_Timeout</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">nanoTimeout</span> <span class="o">/</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">,</span> <span class="n">prevNanoTime</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketTimeoutException"</span><span class="p">,</span>
+                            <span class="s">"Accept timed out"</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EBADF</span><span class="p">)</span> <span class="p">{</span>
+               <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Socket closed"</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">ENOMEM</span><span class="p">)</span> <span class="p">{</span>
+               <span class="n">JNU_ThrowOutOfMemoryError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"NET_Timeout native heap allocation failed"</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+               <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                   <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Accept failed"</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="c1">//这里调用系统调用accept获取新的描述符</span>
+        <span class="n">newfd</span> <span class="o">=</span> <span class="n">NET_Accept</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">slen</span><span class="p">);</span>
+
+        <span class="cm">/* connection accepted */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">//获取到描述符就先把它设置成阻塞的</span>
+            <span class="n">SET_BLOCKING</span><span class="p">(</span><span class="n">newfd</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="cm">/* non (ECONNABORTED or EWOULDBLOCK or EAGAIN) error */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">ECONNABORTED</span> <span class="o">||</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EWOULDBLOCK</span> <span class="o">||</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EAGAIN</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="cm">/* ECONNABORTED or EWOULDBLOCK or EAGAIN error so adjust timeout if there is one. */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nanoTimeout</span> <span class="o">&gt;=</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">currNanoTime</span> <span class="o">=</span> <span class="n">JVM_NanoTime</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="n">nanoTimeout</span> <span class="o">-=</span> <span class="p">(</span><span class="n">currNanoTime</span> <span class="o">-</span> <span class="n">prevNanoTime</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">nanoTimeout</span> <span class="o">&lt;</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketTimeoutException"</span><span class="p">,</span>
+                        <span class="s">"Accept timed out"</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">prevNanoTime</span> <span class="o">=</span> <span class="n">currNanoTime</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVAIOPKG</span> <span class="s">"InterruptedIOException"</span><span class="p">,</span>
+                            <span class="s">"operation interrupted"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINVAL</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">errno</span> <span class="o">=</span> <span class="n">EBADF</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EBADF</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Socket closed"</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                    <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Accept failed"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+     * fill up the remote peer port and address in the new socket structure.
+     */</span>
+    <span class="n">socketAddressObj</span> <span class="o">=</span> <span class="n">NET_SockaddrToInetAddress</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">port</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">socketAddressObj</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* should be pending exception */</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">newfd</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+     * Populate SocketImpl.fd.fd
+     */</span>
+  <span class="c1">//设置描述符和地址信息到accept方法中创建的Socket中</span>
+    <span class="n">socketFdObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">socket</span><span class="p">,</span> <span class="n">psi_fdID</span><span class="p">);</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">socketFdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">,</span> <span class="n">newfd</span><span class="p">);</span>
+
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">socket</span><span class="p">,</span> <span class="n">psi_addressID</span><span class="p">,</span> <span class="n">socketAddressObj</span><span class="p">);</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">socket</span><span class="p">,</span> <span class="n">psi_portID</span><span class="p">,</span> <span class="n">port</span><span class="p">);</span>
+    <span class="cm">/* also fill up the local port information */</span>
+     <span class="n">port</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_localportID</span><span class="p">);</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">socket</span><span class="p">,</span> <span class="n">psi_localportID</span><span class="p">,</span> <span class="n">port</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>read&amp;write方法我们往下看客户端代码的时候一起讲解，因为他们属于Socket类</p>
+
+<p>我们再来看一下客户端的代码</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="c1">//创建socket</span>
+    <span class="kt">int</span> <span class="n">socketfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">SOCK_STREAM</span><span class="p">,</span><span class="n">IPPROTO_TCP</span><span class="p">);</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">servaddr</span><span class="p">;</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span><span class="o">=</span><span class="n">AF_INET</span><span class="p">;</span><span class="c1">//设置地址类型为AF_INET</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span><span class="o">=</span><span class="n">inet_addr</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">);</span><span class="c1">//设置网络地址为INADDR_ANY</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span><span class="o">=</span><span class="n">htons</span><span class="p">(</span><span class="mi">8840</span><span class="p">);</span><span class="c1">//设置端口为80</span>
+  
+  <span class="c1">//创建连接到服务端</span>
+    <span class="n">connect</span><span class="p">(</span><span class="n">socketfd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">输入要发送的数据："</span><span class="p">);</span>
+        <span class="n">scanf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span><span class="n">data</span><span class="p">);</span>
+      <span class="c1">//发送数据到服务端</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">socketfd</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="mi">8</span><span class="p">);</span>
+      <span class="c1">//从服务端接收数据</span>
+        <span class="n">read</span><span class="p">(</span><span class="n">socketfd</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="mi">8</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"服务器回应 %s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="c1">//关闭socket</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">socketfd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>整个过程大致就是</p>
+
+<ul>
+  <li>socket函数创建socket</li>
+  <li>connect函数建立连接（3次握手就是这里完成的）</li>
+  <li>read&amp;write 进行操作（也可以使用recv&amp;send）</li>
+</ul>
+
+<p>在java中的代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//这里创建一个java对象 没有创建socket</span>
+<span class="nc">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Socket</span><span class="o">();</span>
+<span class="c1">//这里如果没有创建socket的话会创建，然后调用connect函数连接</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="s">"127.0.0.1"</span><span class="o">,</span><span class="mi">36352</span><span class="o">));</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">().</span><span class="na">write</span><span class="o">(</span><span class="n">bytes</span><span class="o">);</span>
+<span class="n">socket</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">().</span><span class="na">read</span><span class="o">(</span><span class="n">bytes</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>先来看一下connect的实现</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">connect</span><span class="o">(</span><span class="nc">SocketAddress</span> <span class="n">endpoint</span><span class="o">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">endpoint</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"connect: The address can't be null"</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">timeout</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"connect: timeout can't be negative"</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">isClosed</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Socket is closed"</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(!</span><span class="n">oldImpl</span> <span class="o">&amp;&amp;</span> <span class="n">isConnected</span><span class="o">())</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"already connected"</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(!(</span><span class="n">endpoint</span> <span class="k">instanceof</span> <span class="nc">InetSocketAddress</span><span class="o">))</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Unsupported address type"</span><span class="o">);</span>
+
+    <span class="nc">InetSocketAddress</span> <span class="n">epoint</span> <span class="o">=</span> <span class="o">(</span><span class="nc">InetSocketAddress</span><span class="o">)</span> <span class="n">endpoint</span><span class="o">;</span>
+    <span class="nc">InetAddress</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">epoint</span><span class="o">.</span><span class="na">getAddress</span> <span class="o">();</span>
+    <span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="n">epoint</span><span class="o">.</span><span class="na">getPort</span><span class="o">();</span>
+    <span class="n">checkAddress</span><span class="o">(</span><span class="n">addr</span><span class="o">,</span> <span class="s">"connect"</span><span class="o">);</span>
+
+    <span class="nc">SecurityManager</span> <span class="n">security</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getSecurityManager</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">security</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">epoint</span><span class="o">.</span><span class="na">isUnresolved</span><span class="o">())</span>
+            <span class="n">security</span><span class="o">.</span><span class="na">checkConnect</span><span class="o">(</span><span class="n">epoint</span><span class="o">.</span><span class="na">getHostName</span><span class="o">(),</span> <span class="n">port</span><span class="o">);</span>
+        <span class="k">else</span>
+            <span class="n">security</span><span class="o">.</span><span class="na">checkConnect</span><span class="o">(</span><span class="n">addr</span><span class="o">.</span><span class="na">getHostAddress</span><span class="o">(),</span> <span class="n">port</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">created</span><span class="o">)</span>
+      <span class="c1">//这里创建socket，创建后会把系统的描述符写到Java对象中</span>
+        <span class="n">createImpl</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">oldImpl</span><span class="o">)</span>
+      <span class="c1">//这里建立连接</span>
+        <span class="n">impl</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">epoint</span><span class="o">,</span> <span class="n">timeout</span><span class="o">);</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">timeout</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">epoint</span><span class="o">.</span><span class="na">isUnresolved</span><span class="o">())</span>
+            <span class="n">impl</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">addr</span><span class="o">.</span><span class="na">getHostName</span><span class="o">(),</span> <span class="n">port</span><span class="o">);</span>
+        <span class="k">else</span>
+            <span class="n">impl</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">addr</span><span class="o">,</span> <span class="n">port</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="s">"SocketImpl.connect(addr, timeout)"</span><span class="o">);</span>
+    <span class="n">connected</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="cm">/*
+     * If the socket was not bound before the connect, it is now because
+     * the kernel will have picked an ephemeral port &amp; a local address
+     */</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>createImpl调用了AbstractPlainSocketImpl里面的create，这个可以参考之前服务端的代码是一样的</p>
+
+<p>impl.connect的情况比较复杂这里节省篇幅不展开说明了，最终它都会调用到AbstractPlainSocketImpl的doConnect方法然后调用native方法socketConnect，我们来看一下socketConnect的c代码实现</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_net_PlainSocketImpl_socketConnect</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                            <span class="n">jobject</span> <span class="n">iaObj</span><span class="p">,</span> <span class="n">jint</span> <span class="n">port</span><span class="p">,</span>
+                                            <span class="n">jint</span> <span class="n">timeout</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jint</span> <span class="n">localport</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_localportID</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="cm">/* fdObj is the FileDescriptor field on this */</span>
+    <span class="n">jobject</span> <span class="n">fdObj</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_fdID</span><span class="p">);</span>
+    <span class="n">jclass</span> <span class="n">clazz</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetObjectClass</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">);</span>
+    <span class="n">jobject</span> <span class="n">fdLock</span><span class="p">;</span>
+    <span class="n">jint</span> <span class="n">trafficClass</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_trafficClassID</span><span class="p">);</span>
+    <span class="cm">/* fd is an int field on iaObj */</span>
+    <span class="n">jint</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="n">SOCKETADDRESS</span> <span class="n">sa</span><span class="p">;</span>
+    <span class="cm">/* The result of the connection */</span>
+    <span class="kt">int</span> <span class="n">connect_rv</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">fdObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">iaObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"inet address argument null."</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">NET_InetAddressToSockaddr</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">iaObj</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">,</span>
+                                  <span class="n">JNI_TRUE</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">setDefaultScopeID</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">trafficClass</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">ipv6_available</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">NET_SetTrafficClass</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="n">trafficClass</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">timeout</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">//这里进行连接，NET_Connect这个宏定义内部进行了重试操作</span>
+      <span class="c1">//因为timeout无限所以这里是阻塞的循环进行重试</span>
+        <span class="n">connect_rv</span> <span class="o">=</span> <span class="n">NET_Connect</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+<span class="cp">#ifdef __solaris__
+</span>      <span class="p">...</span>
+<span class="cp">#endif
+</span>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">//设置成非阻塞</span>
+        <span class="n">SET_NONBLOCKING</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+      <span class="c1">//连接，这样可以自己实现超时</span>
+        <span class="n">connect_rv</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">connect_rv</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">socklen_t</span> <span class="n">optlen</span><span class="p">;</span>
+            <span class="n">jlong</span> <span class="n">nanoTimeout</span> <span class="o">=</span> <span class="p">(</span><span class="n">jlong</span><span class="p">)</span> <span class="n">timeout</span> <span class="o">*</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">;</span>
+            <span class="n">jlong</span> <span class="n">prevNanoTime</span> <span class="o">=</span> <span class="n">JVM_NanoTime</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">EINPROGRESS</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"ConnectException"</span><span class="p">,</span>
+                             <span class="s">"connect failed"</span><span class="p">);</span>
+                <span class="n">SET_BLOCKING</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">jlong</span> <span class="n">newNanoTime</span><span class="p">;</span>
+                <span class="k">struct</span> <span class="n">pollfd</span> <span class="n">pfd</span><span class="p">;</span>
+                <span class="n">pfd</span><span class="p">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">fd</span><span class="p">;</span>
+                <span class="n">pfd</span><span class="p">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLOUT</span><span class="p">;</span>
+
+                <span class="n">errno</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">connect_rv</span> <span class="o">=</span> <span class="n">NET_Poll</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pfd</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nanoTimeout</span> <span class="o">/</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">);</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">connect_rv</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">EINTR</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">newNanoTime</span> <span class="o">=</span> <span class="n">JVM_NanoTime</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+                <span class="n">nanoTimeout</span> <span class="o">-=</span> <span class="p">(</span><span class="n">newNanoTime</span> <span class="o">-</span> <span class="n">prevNanoTime</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">nanoTimeout</span> <span class="o">&lt;</span> <span class="n">NET_NSEC_PER_MSEC</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">connect_rv</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">prevNanoTime</span> <span class="o">=</span> <span class="n">newNanoTime</span><span class="p">;</span>
+
+            <span class="p">}</span> <span class="cm">/* while */</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">connect_rv</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketTimeoutException"</span><span class="p">,</span>
+                            <span class="s">"connect timed out"</span><span class="p">);</span>
+                <span class="n">SET_BLOCKING</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+                <span class="n">shutdown</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">optlen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">connect_rv</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">getsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_ERROR</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">connect_rv</span><span class="p">,</span>
+                           <span class="o">&amp;</span><span class="n">optlen</span><span class="p">)</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">connect_rv</span> <span class="o">=</span> <span class="n">errno</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">SET_BLOCKING</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">connect_rv</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">errno</span> <span class="o">=</span> <span class="n">connect_rv</span><span class="p">;</span>
+            <span class="n">connect_rv</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">connect_rv</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="cp">#ifdef __linux__
+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">connect_rv</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EINVAL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                <span class="s">"Invalid argument or cannot assign requested address"</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+<span class="cp">#endif
+#if defined(EPROTO)
+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EPROTO</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"ProtocolException"</span><span class="p">,</span>
+                           <span class="s">"Protocol error"</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+<span class="cp">#endif
+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">ECONNREFUSED</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"ConnectException"</span><span class="p">,</span>
+                           <span class="s">"Connection refused"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">ETIMEDOUT</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"ConnectException"</span><span class="p">,</span>
+                           <span class="s">"Connection timed out"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EHOSTUNREACH</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"NoRouteToHostException"</span><span class="p">,</span>
+                           <span class="s">"Host unreachable"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EADDRNOTAVAIL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NET_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"NoRouteToHostException"</span><span class="p">,</span>
+                             <span class="s">"Address not available"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EISCONN</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EBADF</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                            <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"connect failed"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetObjectField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_addressID</span><span class="p">,</span> <span class="n">iaObj</span><span class="p">);</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_portID</span><span class="p">,</span> <span class="n">port</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">localport</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">socklen_t</span> <span class="n">slen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SOCKETADDRESS</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">getsockname</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">slen</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span> <span class="s">"Error getting socket name"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">localport</span> <span class="o">=</span> <span class="n">NET_GetPortFromSockaddr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sa</span><span class="p">);</span>
+            <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">psi_localportID</span><span class="p">,</span> <span class="n">localport</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>最后我们来看一下read&amp;write方法</p>
+
+<p>首先socket.getOutputStream()最终调用AbstractPlainSocketImpl的getOutputStream方法</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protected</span> <span class="kd">synchronized</span> <span class="nc">OutputStream</span> <span class="nf">getOutputStream</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">fdLock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isClosedOrPending</span><span class="o">())</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IOException</span><span class="o">(</span><span class="s">"Socket Closed"</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">shut_wr</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IOException</span><span class="o">(</span><span class="s">"Socket output is shutdown"</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">socketOutputStream</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+          <span class="c1">//这里返回了一个SocketOutputStream</span>
+            <span class="n">socketOutputStream</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SocketOutputStream</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">socketOutputStream</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>socket.getInputStream()最终调用AbstractPlainSocketImpl的getInputStream方法</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protected</span> <span class="kd">synchronized</span> <span class="nc">InputStream</span> <span class="nf">getInputStream</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">fdLock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isClosedOrPending</span><span class="o">())</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IOException</span><span class="o">(</span><span class="s">"Socket Closed"</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">shut_rd</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IOException</span><span class="o">(</span><span class="s">"Socket input is shutdown"</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">socketInputStream</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+          <span class="c1">//这里返回了一个SocketInputStream</span>
+            <span class="n">socketInputStream</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SocketInputStream</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">socketInputStream</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>SocketInputStream与SocketOutputStream继承了FileInputStream与FileOutputStream但是他们重写了read和wirte方法</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">SocketInputStream</span><span class="o">(</span><span class="nc">AbstractPlainSocketImpl</span> <span class="n">impl</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+  <span class="c1">//这个不知道的可以回去看文件IO那篇文章 https://www.zhoukaifan.com/2021-02-05/Java%E6%96%87%E4%BB%B6IO</span>
+    <span class="kd">super</span><span class="o">(</span><span class="n">impl</span><span class="o">.</span><span class="na">getFileDescriptor</span><span class="o">());</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">impl</span> <span class="o">=</span> <span class="n">impl</span><span class="o">;</span>
+    <span class="n">socket</span> <span class="o">=</span> <span class="n">impl</span><span class="o">.</span><span class="na">getSocket</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="nc">SocketOutputStream</span><span class="o">(</span><span class="nc">AbstractPlainSocketImpl</span> <span class="n">impl</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+  <span class="c1">//这个不知道的可以回去看文件IO那篇文章 https://www.zhoukaifan.com/2021-02-05/Java%E6%96%87%E4%BB%B6IO</span>
+    <span class="kd">super</span><span class="o">(</span><span class="n">impl</span><span class="o">.</span><span class="na">getFileDescriptor</span><span class="o">());</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">impl</span> <span class="o">=</span> <span class="n">impl</span><span class="o">;</span>
+    <span class="n">socket</span> <span class="o">=</span> <span class="n">impl</span><span class="o">.</span><span class="na">getSocket</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>接下来我们已SocketInputStream为例去分析一下具体实现</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">read</span><span class="o">(</span><span class="kt">byte</span> <span class="n">b</span><span class="o">[],</span> <span class="kt">int</span> <span class="n">off</span><span class="o">,</span> <span class="kt">int</span> <span class="n">length</span><span class="o">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="o">;</span>
+    <span class="c1">// EOF already encountered</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">eof</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// connection reset</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">impl</span><span class="o">.</span><span class="na">isConnectionReset</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Connection reset"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// bounds check</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">off</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="n">b</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">off</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArrayIndexOutOfBoundsException</span><span class="o">(</span><span class="s">"length == "</span> <span class="o">+</span> <span class="n">length</span>
+                <span class="o">+</span> <span class="s">" off == "</span> <span class="o">+</span> <span class="n">off</span> <span class="o">+</span> <span class="s">" buffer length == "</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// acquire file descriptor and do the read</span>
+  <span class="c1">//获取描述符</span>
+    <span class="nc">FileDescriptor</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">impl</span><span class="o">.</span><span class="na">acquireFD</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="c1">//主要就是这里实现的读取</span>
+      <span class="c1">//这个方法就一行代码就是调用native方法socketRead0</span>
+      <span class="c1">//return socketRead0(fd, b, off, len, timeout);</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">socketRead</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">off</span><span class="o">,</span> <span class="n">length</span><span class="o">,</span> <span class="n">timeout</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">n</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ConnectionResetException</span> <span class="n">rstExc</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">impl</span><span class="o">.</span><span class="na">setConnectionReset</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">impl</span><span class="o">.</span><span class="na">releaseFD</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="cm">/*
+     * If we get here we are at EOF, the socket has been closed,
+     * or the connection has been reset.
+     */</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">impl</span><span class="o">.</span><span class="na">isClosedOrPending</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Socket closed"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">impl</span><span class="o">.</span><span class="na">isConnectionReset</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">SocketException</span><span class="o">(</span><span class="s">"Connection reset"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">eof</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>接着我们看看socketRead0的实现</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_net_SocketInputStream_socketRead0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                            <span class="n">jobject</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">data</span><span class="p">,</span>
+                                            <span class="n">jint</span> <span class="n">off</span><span class="p">,</span> <span class="n">jint</span> <span class="n">len</span><span class="p">,</span> <span class="n">jint</span> <span class="n">timeout</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">BUF</span><span class="p">[</span><span class="n">MAX_BUFFER_LEN</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">bufP</span><span class="p">;</span>
+    <span class="n">jint</span> <span class="n">fd</span><span class="p">,</span> <span class="n">nread</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IS_NULL</span><span class="p">(</span><span class="n">fdObj</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/net/SocketException"</span><span class="p">,</span>
+                        <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="c1">//获取描述符</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/net/SocketException"</span><span class="p">,</span> <span class="s">"Socket closed"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+     * If the read is greater than our stack allocated buffer then
+     * we allocate from the heap (up to a limit)
+     */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">MAX_BUFFER_LEN</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">MAX_HEAP_BUFFER_LEN</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">len</span> <span class="o">=</span> <span class="n">MAX_HEAP_BUFFER_LEN</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="c1">//申请堆外内存</span>
+        <span class="n">bufP</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">((</span><span class="kt">size_t</span><span class="p">)</span><span class="n">len</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bufP</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">bufP</span> <span class="o">=</span> <span class="n">BUF</span><span class="p">;</span>
+            <span class="n">len</span> <span class="o">=</span> <span class="n">MAX_BUFFER_LEN</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">bufP</span> <span class="o">=</span> <span class="n">BUF</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">timeout</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">//读取数据到堆外 有超时实现</span>
+      <span class="c1">//这里老样子用非阻塞实现超时</span>
+      <span class="c1">//不过要注意的是不是socket设置成非阻塞而是使用了recv函数 参考这里 https://linux.die.net/man/2/recv</span>
+        <span class="n">nread</span> <span class="o">=</span> <span class="n">NET_ReadWithTimeout</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">bufP</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">timeout</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">((</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ExceptionCheck</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">bufP</span> <span class="o">!=</span> <span class="n">BUF</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">free</span><span class="p">(</span><span class="n">bufP</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">nread</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">//读取数据到堆外</span>
+        <span class="n">nread</span> <span class="o">=</span> <span class="n">NET_Read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">bufP</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="k">switch</span> <span class="p">(</span><span class="n">errno</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">case</span> <span class="n">ECONNRESET</span><span class="p">:</span>
+                <span class="k">case</span> <span class="n">EPIPE</span><span class="p">:</span>
+                    <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"sun/net/ConnectionResetException"</span><span class="p">,</span>
+                        <span class="s">"Connection reset"</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+
+                <span class="k">case</span> <span class="n">EBADF</span><span class="p">:</span>
+                    <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/net/SocketException"</span><span class="p">,</span>
+                        <span class="s">"Socket closed"</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+
+                <span class="k">case</span> <span class="n">EINTR</span><span class="p">:</span>
+                     <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/io/InterruptedIOException"</span><span class="p">,</span>
+                           <span class="s">"Operation interrupted"</span><span class="p">);</span>
+                     <span class="k">break</span><span class="p">;</span>
+                <span class="nl">default:</span>
+                    <span class="n">JNU_ThrowByNameWithMessageAndLastError</span>
+                        <span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"java/net/SocketException"</span><span class="p">,</span> <span class="s">"Read failed"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">//设置数据到堆内</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetByteArrayRegion</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">nread</span><span class="p">,</span> <span class="p">(</span><span class="n">jbyte</span> <span class="o">*</span><span class="p">)</span><span class="n">bufP</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">bufP</span> <span class="o">!=</span> <span class="n">BUF</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">//释放堆外内存</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">bufP</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">nread</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>所以传统Socket类的过程基本和传统文件IO类似。参考：<a href="https://www.zhoukaifan.com/2021-02-05/Java%E6%96%87%E4%BB%B6IO">文件IO</a></p>
+
+<p><img src="../img/bioreadcopy.png" alt="bioreadcopy" /><img src="../img/biosocketcopy.png" alt="bioreadcopy" /></p>
+
+<p>write方法的整个过程是类似的</p>
+
+<h3 id="nio中的socket">NIO中的Socket</h3>
+
+<p>服务端</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+    <span class="nc">ServerSocketChannel</span> <span class="n">serverSocketChannel</span> <span class="o">=</span> <span class="nc">ServerSocketChannel</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+    <span class="n">serverSocketChannel</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="s">"127.0.0.1"</span><span class="o">,</span><span class="mi">54321</span><span class="o">));</span>
+    <span class="nc">SocketChannel</span> <span class="n">accept</span> <span class="o">=</span> <span class="n">serverSocketChannel</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+    <span class="nc">ByteBuffer</span> <span class="n">byteBuffer</span> <span class="o">=</span> <span class="nc">ByteBuffer</span><span class="o">.</span><span class="na">allocate</span><span class="o">(</span><span class="mi">16</span><span class="o">);</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+        <span class="n">byteBuffer</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+        <span class="n">accept</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">byteBuffer</span><span class="o">);</span>
+        <span class="n">byteBuffer</span><span class="o">.</span><span class="na">flip</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"收到客户端消息："</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">byteBuffer</span><span class="o">.</span><span class="na">array</span><span class="o">()));</span>
+        <span class="n">accept</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">byteBuffer</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>客户端</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+    <span class="nc">SocketChannel</span> <span class="n">socketChannel</span> <span class="o">=</span> <span class="nc">SocketChannel</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+    <span class="n">socketChannel</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="s">"127.0.0.1"</span><span class="o">,</span><span class="mi">54321</span><span class="o">));</span>
+    <span class="nc">Scanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Scanner</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">in</span><span class="o">);</span>
+    <span class="nc">ByteBuffer</span> <span class="n">byteBuffer</span> <span class="o">=</span> <span class="nc">ByteBuffer</span><span class="o">.</span><span class="na">allocate</span><span class="o">(</span><span class="mi">1111</span><span class="o">);</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">"请输入消息："</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">str</span><span class="o">=</span><span class="n">scanner</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+        <span class="n">byteBuffer</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+        <span class="n">byteBuffer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="nc">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">));</span>
+        <span class="n">byteBuffer</span><span class="o">.</span><span class="na">flip</span><span class="o">();</span>
+        <span class="n">socketChannel</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">byteBuffer</span><span class="o">);</span>
+        <span class="n">socketChannel</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">byteBuffer</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"服务器回应："</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">byteBuffer</span><span class="o">.</span><span class="na">array</span><span class="o">()));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>我们先来看一下ServerSocketChannel的方法实现</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">ServerSocketChannel</span> <span class="nf">open</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">SelectorProvider</span><span class="o">.</span><span class="na">provider</span><span class="o">().</span><span class="na">openServerSocketChannel</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="nc">ServerSocketChannel</span> <span class="nf">openServerSocketChannel</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+	<span class="k">return</span> <span class="k">new</span> <span class="nf">ServerSocketChannelImpl</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="nc">ServerSocketChannelImpl</span><span class="o">(</span><span class="nc">SelectorProvider</span> <span class="n">sp</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+	<span class="kd">super</span><span class="o">(</span><span class="n">sp</span><span class="o">);</span>
+	<span class="k">this</span><span class="o">.</span><span class="na">fd</span> <span class="o">=</span>  <span class="nc">Net</span><span class="o">.</span><span class="na">serverSocket</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+	<span class="c1">//fdVal是一个native方法 其实就是拿到描述符</span>
+	<span class="k">this</span><span class="o">.</span><span class="na">fdVal</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">fdVal</span><span class="o">(</span><span class="n">fd</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">//socket0是一个native方法  newFD会吧描述符号包装成一个</span>
+<span class="kd">static</span> <span class="nc">FileDescriptor</span> <span class="nf">serverSocket</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">stream</span><span class="o">)</span> <span class="o">{</span>
+	<span class="k">return</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">newFD</span><span class="o">(</span><span class="n">socket0</span><span class="o">(</span><span class="n">isIPv6Available</span><span class="o">(),</span> <span class="n">stream</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">fastLoopback</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_IOUtil_fdVal</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">fdo</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//https://docs.oracle.com/en/java/javase/15/docs/specs/jni/functions.html#getfieldid</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdo</span><span class="p">,</span> <span class="n">fd_fdID</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_Net_socket0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">cl</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">preferIPv6</span><span class="p">,</span>
+                            <span class="n">jboolean</span> <span class="n">stream</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">reuse</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">ignored</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">type</span> <span class="o">=</span> <span class="p">(</span><span class="n">stream</span> <span class="o">?</span> <span class="n">SOCK_STREAM</span> <span class="o">:</span> <span class="n">SOCK_DGRAM</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">domain</span> <span class="o">=</span> <span class="p">(</span><span class="n">ipv6_available</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">preferIPv6</span><span class="p">)</span> <span class="o">?</span> <span class="n">AF_INET6</span> <span class="o">:</span> <span class="n">AF_INET</span><span class="p">;</span>
+
+  <span class="c1">//创建描述符</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">handleSocketError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* Disable IPV6_V6ONLY to ensure dual-socket support */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">domain</span> <span class="o">==</span> <span class="n">AF_INET6</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="c1">//设置IPV6_V6ONLY 不同时监听ipv4端口</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">IPPROTO_IPV6</span><span class="p">,</span> <span class="n">IPV6_V6ONLY</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span>
+                       <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span>
+                                         <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                                         <span class="s">"Unable to set IPV6_V6ONLY"</span><span class="p">);</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">reuse</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="c1">//重用端口不再等待2分钟</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span>
+                       <span class="k">sizeof</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span>
+                                         <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                                         <span class="s">"Unable to set SO_REUSEADDR"</span><span class="p">);</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="cp">#if defined(__linux__)
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">SOCK_DGRAM</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">level</span> <span class="o">=</span> <span class="p">(</span><span class="n">domain</span> <span class="o">==</span> <span class="n">AF_INET6</span><span class="p">)</span> <span class="o">?</span> <span class="n">IPPROTO_IPV6</span> <span class="o">:</span> <span class="n">IPPROTO_IP</span><span class="p">;</span>
+      <span class="c1">//多播配置</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">IP_MULTICAST_ALL</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+            <span class="p">(</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">ENOPROTOOPT</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span>
+                                         <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                                         <span class="s">"Unable to set IP_MULTICAST_ALL"</span><span class="p">);</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* By default, Linux uses the route default */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">domain</span> <span class="o">==</span> <span class="n">AF_INET6</span> <span class="o">&amp;&amp;</span> <span class="n">type</span> <span class="o">==</span> <span class="n">SOCK_DGRAM</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="c1">//设置多播跳数</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">IPPROTO_IPV6</span><span class="p">,</span> <span class="n">IPV6_MULTICAST_HOPS</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arg</span><span class="p">,</span>
+                       <span class="k">sizeof</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByNameWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span>
+                                         <span class="n">JNU_JAVANETPKG</span> <span class="s">"SocketException"</span><span class="p">,</span>
+                                         <span class="s">"Unable to set IPV6_MULTICAST_HOPS"</span><span class="p">);</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="cp">#endif
+</span>    <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>所以在open方法调用的时候socket已经创建，和老的API不一样这里不会在用到的时候才去创建socket</p>
+
+<p>再看一下bind</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">ServerSocketChannel</span> <span class="nf">bind</span><span class="o">(</span><span class="nc">SocketAddress</span> <span class="n">local</span><span class="o">,</span> <span class="kt">int</span> <span class="n">backlog</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">stateLock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ensureOpen</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">localAddress</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AlreadyBoundException</span><span class="o">();</span>
+        <span class="nc">InetSocketAddress</span> <span class="n">isa</span> <span class="o">=</span> <span class="o">(</span><span class="n">local</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                                <span class="o">?</span> <span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+                                <span class="o">:</span> <span class="nc">Net</span><span class="o">.</span><span class="na">checkAddress</span><span class="o">(</span><span class="n">local</span><span class="o">);</span>
+        <span class="nc">SecurityManager</span> <span class="n">sm</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getSecurityManager</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">sm</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">sm</span><span class="o">.</span><span class="na">checkListen</span><span class="o">(</span><span class="n">isa</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+        <span class="nc">NetHooks</span><span class="o">.</span><span class="na">beforeTcpBind</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">isa</span><span class="o">.</span><span class="na">getAddress</span><span class="o">(),</span> <span class="n">isa</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+      <span class="c1">//bind看下面</span>
+        <span class="nc">Net</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">isa</span><span class="o">.</span><span class="na">getAddress</span><span class="o">(),</span> <span class="n">isa</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+      <span class="c1">//listen是一个native方法</span>
+        <span class="nc">Net</span><span class="o">.</span><span class="na">listen</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">backlog</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">?</span> <span class="mi">50</span> <span class="o">:</span> <span class="n">backlog</span><span class="o">);</span>
+        <span class="n">localAddress</span> <span class="o">=</span> <span class="nc">Net</span><span class="o">.</span><span class="na">localAddress</span><span class="o">(</span><span class="n">fd</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bind</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span> <span class="nc">InetAddress</span> <span class="n">addr</span><span class="o">,</span> <span class="kt">int</span> <span class="n">port</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="n">bind</span><span class="o">(</span><span class="no">UNSPEC</span><span class="o">,</span> <span class="n">fd</span><span class="o">,</span> <span class="n">addr</span><span class="o">,</span> <span class="n">port</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">static</span> <span class="kt">void</span> <span class="nf">bind</span><span class="o">(</span><span class="nc">ProtocolFamily</span> <span class="n">family</span><span class="o">,</span> <span class="nc">FileDescriptor</span> <span class="n">fd</span><span class="o">,</span>
+                    <span class="nc">InetAddress</span> <span class="n">addr</span><span class="o">,</span> <span class="kt">int</span> <span class="n">port</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+    <span class="kt">boolean</span> <span class="n">preferIPv6</span> <span class="o">=</span> <span class="n">isIPv6Available</span><span class="o">()</span> <span class="o">&amp;&amp;</span>
+        <span class="o">(</span><span class="n">family</span> <span class="o">!=</span> <span class="nc">StandardProtocolFamily</span><span class="o">.</span><span class="na">INET</span><span class="o">);</span>
+  <span class="c1">//这里调用native方法</span>
+    <span class="n">bind0</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">preferIPv6</span><span class="o">,</span> <span class="n">exclusiveBind</span><span class="o">,</span> <span class="n">addr</span><span class="o">,</span> <span class="n">port</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>这里没什么好说的，就是做一些转换调用系统函数</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_Net_bind0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">fdo</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">preferIPv6</span><span class="p">,</span>
+                          <span class="n">jboolean</span> <span class="n">useExclBind</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">iao</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">SOCKETADDRESS</span> <span class="n">sa</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">sa_len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">rv</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">NET_InetAddressToSockaddr</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">iao</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa_len</span><span class="p">,</span>
+                                  <span class="n">preferIPv6</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">rv</span> <span class="o">=</span> <span class="n">NET_Bind</span><span class="p">(</span><span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdo</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="n">sa_len</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">rv</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">handleSocketError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_Net_listen</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">cl</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">fdo</span><span class="p">,</span> <span class="n">jint</span> <span class="n">backlog</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">listen</span><span class="p">(</span><span class="n">fdval</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdo</span><span class="p">),</span> <span class="n">backlog</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">handleSocketError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">errno</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>最后来看一下accrpt方法的实现</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">SocketChannel</span> <span class="nf">accept</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="n">acceptLock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="nc">FileDescriptor</span> <span class="n">newfd</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileDescriptor</span><span class="o">();</span>
+        <span class="nc">InetSocketAddress</span><span class="o">[]</span> <span class="n">isaa</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">InetSocketAddress</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+
+        <span class="kt">boolean</span> <span class="n">blocking</span> <span class="o">=</span> <span class="n">isBlocking</span><span class="o">();</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">begin</span><span class="o">(</span><span class="n">blocking</span><span class="o">);</span>
+            <span class="k">do</span> <span class="o">{</span>
+              <span class="c1">//这里实现功能</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">accept</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">fd</span><span class="o">,</span> <span class="n">newfd</span><span class="o">,</span> <span class="n">isaa</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">INTERRUPTED</span> <span class="o">&amp;&amp;</span> <span class="n">isOpen</span><span class="o">());</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">end</span><span class="o">(</span><span class="n">blocking</span><span class="o">,</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="k">assert</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">check</span><span class="o">(</span><span class="n">n</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="c1">// newly accepted socket is initially in blocking mode</span>
+      <span class="c1">//新建的默认是阻塞的</span>
+        <span class="nc">IOUtil</span><span class="o">.</span><span class="na">configureBlocking</span><span class="o">(</span><span class="n">newfd</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+
+        <span class="nc">InetSocketAddress</span> <span class="n">isa</span> <span class="o">=</span> <span class="n">isaa</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+      <span class="c1">//使用新的描述符创建SocketChannelImpl</span>
+        <span class="nc">SocketChannel</span> <span class="n">sc</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SocketChannelImpl</span><span class="o">(</span><span class="n">provider</span><span class="o">(),</span> <span class="n">newfd</span><span class="o">,</span> <span class="n">isa</span><span class="o">);</span>
+
+        <span class="c1">// check permitted to accept connections from the remote address</span>
+        <span class="nc">SecurityManager</span> <span class="n">sm</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getSecurityManager</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">sm</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">sm</span><span class="o">.</span><span class="na">checkAccept</span><span class="o">(</span><span class="n">isa</span><span class="o">.</span><span class="na">getAddress</span><span class="o">().</span><span class="na">getHostAddress</span><span class="o">(),</span> <span class="n">isa</span><span class="o">.</span><span class="na">getPort</span><span class="o">());</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">SecurityException</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">sc</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+                <span class="k">throw</span> <span class="n">x</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">sc</span><span class="o">;</span>
+
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">acceptLock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">int</span> <span class="nf">accept</span><span class="o">(</span><span class="nc">FileDescriptor</span> <span class="n">ssfd</span><span class="o">,</span>
+				<span class="nc">FileDescriptor</span> <span class="n">newfd</span><span class="o">,</span>
+				<span class="nc">InetSocketAddress</span><span class="o">[]</span> <span class="n">isaa</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span>
+<span class="o">{</span>
+  <span class="c1">//native方法</span>
+	<span class="k">return</span> <span class="nf">accept0</span><span class="o">(</span><span class="n">ssfd</span><span class="o">,</span> <span class="n">newfd</span><span class="o">,</span> <span class="n">isaa</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">JNIEXPORT</span> <span class="n">jint</span> <span class="n">JNICALL</span>
+<span class="nf">Java_sun_nio_ch_ServerSocketChannelImpl_accept0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">,</span>
+                                                <span class="n">jobject</span> <span class="n">ssfdo</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">newfdo</span><span class="p">,</span>
+                                                <span class="n">jobjectArray</span> <span class="n">isaa</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//获取一堆需要的参数</span>
+    <span class="n">jint</span> <span class="n">ssfd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">ssfdo</span><span class="p">,</span> <span class="n">fd_fdID</span><span class="p">);</span>
+    <span class="n">jint</span> <span class="n">newfd</span><span class="p">;</span>
+    <span class="n">SOCKETADDRESS</span> <span class="n">sa</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">sa_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SOCKETADDRESS</span><span class="p">);</span>
+    <span class="n">jobject</span> <span class="n">remote_ia</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">jobject</span> <span class="n">isa</span><span class="p">;</span>
+    <span class="n">jint</span> <span class="n">remote_port</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="cm">/*
+     * accept connection but ignore ECONNABORTED indicating that
+     * a connection was eagerly accepted but was reset before
+     * accept() was called.
+     */</span>
+    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+      <span class="c1">//系统调用</span>
+        <span class="n">newfd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">ssfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">.</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa_len</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">ECONNABORTED</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="cm">/* ECONNABORTED =&gt; restart accept */</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EAGAIN</span> <span class="o">||</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EWOULDBLOCK</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">IOS_UNAVAILABLE</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINTR</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">IOS_INTERRUPTED</span><span class="p">;</span>
+        <span class="n">JNU_ThrowIOExceptionWithLastError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">"Accept failed"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">IOS_THROWN</span><span class="p">;</span>
+    <span class="p">}</span>
+
+  <span class="c1">//设置描述符</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">newfdo</span><span class="p">,</span> <span class="n">fd_fdID</span><span class="p">,</span> <span class="n">newfd</span><span class="p">);</span>
+    <span class="n">remote_ia</span> <span class="o">=</span> <span class="n">NET_SockaddrToInetAddress</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">remote_port</span><span class="p">);</span>
+    <span class="n">CHECK_NULL_RETURN</span><span class="p">(</span><span class="n">remote_ia</span><span class="p">,</span> <span class="n">IOS_THROWN</span><span class="p">);</span>
+  <span class="c1">//创建InetSocketAddress对象</span>
+    <span class="n">isa</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">NewObject</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">isa_class</span><span class="p">,</span> <span class="n">isa_ctorID</span><span class="p">,</span> <span class="n">remote_ia</span><span class="p">,</span> <span class="n">remote_port</span><span class="p">);</span>
+    <span class="n">CHECK_NULL_RETURN</span><span class="p">(</span><span class="n">isa</span><span class="p">,</span> <span class="n">IOS_THROWN</span><span class="p">);</span>
+  <span class="c1">//设置地址</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SetObjectArrayElement</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">isaa</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">isa</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>后面就可以使用SocketChannel进行读写了</p>
+
+<p>SocketChannel还可以使用open方法来创建 通常在客户端会这么使用，和ServerSocketChannel类似它最终创建SocketChannelImpl这里过程和ServerSocketChannel一模一样</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">SocketChannelImpl</span><span class="o">(</span><span class="nc">SelectorProvider</span> <span class="n">sp</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">(</span><span class="n">sp</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">fd</span> <span class="o">=</span> <span class="nc">Net</span><span class="o">.</span><span class="na">socket</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">fdVal</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">fdVal</span><span class="o">(</span><span class="n">fd</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>接着connect可以连接到服务器端，这里不过多介绍了，基本可以参考之前的进行理解</p>
+
+<p>而read&amp;write方法调用了IOUtil，这个和FileChannelImpl一样大家可以参考之前的文章<a href="https://www.zhoukaifan.com/2021-02-05/Java%E6%96%87%E4%BB%B6IO">Java文件IO</a></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">int</span> <span class="nf">read</span><span class="o">(</span><span class="nc">ByteBuffer</span> <span class="n">buf</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="nc">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">buf</span><span class="o">);</span>
+
+    <span class="n">readLock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">blocking</span> <span class="o">=</span> <span class="n">isBlocking</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">beginRead</span><span class="o">(</span><span class="n">blocking</span><span class="o">);</span>
+
+            <span class="c1">// check if input is shutdown</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">isInputClosed</span><span class="o">)</span>
+                <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">EOF</span><span class="o">;</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">blocking</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">do</span> <span class="o">{</span>
+                  <span class="c1">//后面的代码在之前的文章中讲过</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">buf</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span> <span class="n">nd</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="n">n</span> <span class="o">==</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">INTERRUPTED</span> <span class="o">&amp;&amp;</span> <span class="n">isOpen</span><span class="o">());</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="nc">IOUtil</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">fd</span><span class="o">,</span> <span class="n">buf</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span> <span class="n">nd</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">endRead</span><span class="o">(</span><span class="n">blocking</span><span class="o">,</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">isInputClosed</span><span class="o">)</span>
+                <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">EOF</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="nc">IOStatus</span><span class="o">.</span><span class="na">normalize</span><span class="o">(</span><span class="n">n</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">readLock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+</div>
+
+
+
+<div class="pagination">
+  
+  
+    <a href="/2021-02-05/Java%E6%96%87%E4%BB%B6IO" class="right arrow">下一篇&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <footer>
+  <span>
+    &copy; <time datetime="2021-02-26 11:38:55 +0800">2021</time> 凯帆. Made with Jekyll using the Tale theme.
+  </span>
+</footer>
+
+  </body>
+</html>
