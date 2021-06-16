@@ -25,6 +25,7 @@ sass:
 
 collections:
   thinking:
+    title: String
 
 # Gems
 plugins:
