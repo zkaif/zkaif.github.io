@@ -23,6 +23,9 @@ sass:
   sass_dir:     _sass
   style:        compressed
 
+collections:
+  thinking:
+
 # Gems
 plugins:
   - jekyll-feed

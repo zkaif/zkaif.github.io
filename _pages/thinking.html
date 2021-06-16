@@ -1,0 +1,41 @@
+---
+layout: default
+title: "Thinking"
+permalink: /Thinking/
+---
+
+<div class="post" style="padding-bottom: 0;">
+  <div class="post-info">
+    <span>Written by</span>
+        {{ site.author.name }}
+  </div>
+
+  <h1 class="post-title">Thinking</h1>
+  <div class="post-line"></div>
+
+</div>
+  <div class="catalogue">
+    {% for t in site.thinking %}
+    <div class="catalogue-item">
+        <time datetime="{{ t.date }}" class="catalogue-time">{{ t.date | date: "%Y年%m月%d日" }}</time>
+        <h3 class="catalogue-title" style="font-size: 1.2rem;">{{ t.title }}</h3>
+        <div class="catalogue-line"></div>
+        <p>
+          {{ t.content }}
+        </p>
+    </div>
+    {% endfor %}
+  </div>
+  
+
+
+<!-- <div class="pagination">
+  {% if paginator.previous_page %}
+    <a href="{{ paginator.previous_page_path | prepend: site.baseurl }}" class="left arrow">&#8592;上一页</a>
+  {% endif %}
+  {% if paginator.next_page %}
+    <a href="{{ paginator.next_page_path | prepend: site.baseurl }}" class="right arrow">下一页&#8594;</a>
+  {% endif %}
+
+  <span>第 {{ paginator.page }} 页</span>
+</div> -->
