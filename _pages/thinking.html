@@ -14,9 +14,14 @@ permalink: /Thinking/
   <div class="post-line"></div>
 
 </div>
-  <div class="catalogue">
-    {% for t in site.thinking %}
+<div class="catalogue">
+  {% assign firstItem = true %}
+  {% for t in site.thinking reversed%}
+    {% if firstItem%}
+    <div class="catalogue-item" style="padding-top: 0%;">
+    {% else %}
     <div class="catalogue-item">
+    {% endif %}
         <time datetime="{{ t.date }}" class="catalogue-time">{{ t.date | date: "%Y年%m月%d日" }}</time>
         <h3 class="catalogue-title" style="font-size: 1.2rem;">{{ t.title }}</h3>
         <div class="catalogue-line"></div>
@@ -24,18 +29,11 @@ permalink: /Thinking/
           {{ t.content }}
         </p>
     </div>
-    {% endfor %}
-  </div>
+    {% assign firstItem = false %}
+  {% endfor %}
+</div>
   
-
-
-<!-- <div class="pagination">
-  {% if paginator.previous_page %}
-    <a href="{{ paginator.previous_page_path | prepend: site.baseurl }}" class="left arrow">&#8592;上一页</a>
-  {% endif %}
-  {% if paginator.next_page %}
-    <a href="{{ paginator.next_page_path | prepend: site.baseurl }}" class="right arrow">下一页&#8594;</a>
-  {% endif %}
-
-  <span>第 {{ paginator.page }} 页</span>
-</div> -->
+<div class="pagination">
+  <!-- <a href="/thinking-all#limitSize" class="top">查看全部</a> -->
+  <a href="#" class="top">Top</a>
+</div>
