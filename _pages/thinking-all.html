@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "Thinking"
-permalink: /Thinking/
+title: "Thinking-all"
+permalink: /Thinking-all/
 ---
 
 <div class="post" style="padding-bottom: 0;">
@@ -18,7 +18,7 @@ permalink: /Thinking/
   {% assign maxSize = 16 %}
   {% assign offset = site.thinking.size | minus:maxSize %}
   {% assign i = 1 %}
-  {% for t in site.thinking reversed offset:offset %}
+  {% for t in site.thinking reversed %}
     {% if i==1%}
     <div class="catalogue-item" style="padding-top: 0%;">
     {% elsif i==maxSize%}
@@ -38,9 +38,5 @@ permalink: /Thinking/
 </div>
   
 <div class="pagination">
-  {% if site.thinking.size>maxSize %}
-  <a href="/thinking-all#lastItem" class="top">查看全部</a>
-  {% else %}
   <a href="#" class="top">Top</a>
-  {% endif %}
 </div>
