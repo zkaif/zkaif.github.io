@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-06-21T20:20:48+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">DDD在中台中的实践</title><link href="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5" rel="alternate" type="text/html" title="DDD在中台中的实践" /><published>2021-06-05T00:00:00+08:00</published><updated>2021-06-05T00:00:00+08:00</updated><id>/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5</id><content type="html" xml:base="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5">&lt;h3 id=&quot;业务至上&quot;&gt;业务至上&lt;/h3&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-06-22T16:34:38+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">DDD在中台中的实践</title><link href="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5" rel="alternate" type="text/html" title="DDD在中台中的实践" /><published>2021-06-05T00:00:00+08:00</published><updated>2021-06-05T00:00:00+08:00</updated><id>/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5</id><content type="html" xml:base="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5">&lt;h3 id=&quot;业务至上&quot;&gt;业务至上&lt;/h3&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;业务系统的根本是业务。软件的核心是解决领域内相关问题的能力，实现方式只是一种工具。DDD是为了应对复杂领域而存在的。&lt;/p&gt;
-  &lt;/li&gt;
+  &lt;li&gt;业务系统的根本是业务。软件的核心是解决领域内相关问题的能力，实现方式只是一种工具。DDD是为了应对复杂领域而存在的。&lt;/li&gt;
   &lt;li&gt;技术解决不了业务问题，技术只能解决复杂业务附加的技术性问题，不要试图用技术去解决领域问题。&lt;/li&gt;
   &lt;li&gt;面向对象将程序设计人员从应对复杂的数据存储计算中解放出来，从而可以专注于业务模型设计。用面向对象的思维方式去抽象领域并且建立模型是DDD的本质。&lt;/li&gt;
+  &lt;li&gt;DDD是面向对象思想的实践，最基础的核心仍然是面向对象。&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&quot;四层架构&quot;&gt;四层架构&lt;/h3&gt;
@@ -25,29 +24,6 @@
 &lt;p&gt;最后一层避免业务代码与某个具体技术强耦合，让领域层代码更专注领域问题&lt;/p&gt;
 
 &lt;p&gt;业务流程与领域模型的拆分，领域不等同于业务，application层把领域编排成业务，但是其本身无业务逻辑，这样可以避免领域模型的设计被强耦合到具体的业务上丧失了可扩展性。领域层应该是存粹的模型和其行为能力的定义与实现。&lt;/p&gt;
-
-&lt;h3 id=&quot;贫血vs充血&quot;&gt;贫血VS充血&lt;/h3&gt;
-
-&lt;h4 id=&quot;贫血&quot;&gt;贫血&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;更适用于简单的业务逻辑&lt;/li&gt;
-  &lt;li&gt;更注重数据操作即CRUD操作&lt;/li&gt;
-  &lt;li&gt;更加面向过程思维但是成本更低&lt;/li&gt;
-  &lt;li&gt;适用简单业务快速迭代&lt;/li&gt;
-  &lt;li&gt;容易迭代成传统3层架构&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;充血&quot;&gt;充血&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;更面向对象&lt;/li&gt;
-  &lt;li&gt;注重领域能力定义&lt;/li&gt;
-  &lt;li&gt;提高代码复用&lt;/li&gt;
-  &lt;li&gt;避免service之间的大量相互调用&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;个人建议使用DDD必然充血，贫血建议回到传统3层架构&lt;/p&gt;
 
 &lt;h3 id=&quot;端口适配器架构&quot;&gt;端口适配器架构&lt;/h3&gt;
 
