@@ -104,6 +104,19 @@
     
     <div class="catalogue-item">
     
+        <time datetime="2021-06-22 00:00:00 +0800" class="catalogue-time">2021年06月22日</time>
+        <h3 class="catalogue-title" style="font-size: 1.2rem;">业务中的静态条件</h3>
+        <div class="catalogue-line"></div>
+        <p>
+          <p>今天思考一个不可预测性业务的持续迭代问题。比如一开始设计一个逻辑，如果是在自营业务购买商品，就免去用户确认收货的逻辑，但是后面业务场景变了自营也需要确认收货，这个时候会有一个新的规则，如自营是第三方快递送货的时候。但是实际上去分析这个场景会发现是否需要确认，业务本质是依赖与送货快递是否可靠，这个层面的关系相比自营非自营更稳定，寻找业务中隐藏的稳定关系代替表面上不稳定的关系，业务的可扩展性更强。往往越稳定的关系越趋于业务的本质。另外一提我发现使用DDD可以更容易发现这种隐藏的关系，因为他们了两个都在分析业务的本质。</p>
+
+        </p>
+    </div>
+    
+  
+    
+    <div class="catalogue-item">
+    
         <time datetime="2021-06-21 00:00:00 +0800" class="catalogue-time">2021年06月21日</time>
         <h3 class="catalogue-title" style="font-size: 1.2rem;">四层结构思考</h3>
         <div class="catalogue-line"></div>
@@ -136,7 +149,7 @@
 
     <footer>
   <span>
-    &copy; <time datetime="2021-06-22 16:34:38 +0800">2021</time> 凯帆. Made with Jekyll using the Tale theme.
+    &copy; <time datetime="2021-06-22 19:54:23 +0800">2021</time> 凯帆. Made with Jekyll using the Tale theme.
   </span>
 </footer>
 
