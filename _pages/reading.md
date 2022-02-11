@@ -14,6 +14,7 @@ permalink: /reading/
 
 ### 已读
 
++ 人月神话
 + HTTP权威指南
 + 深入浅出MySQL
 + Redis实战
@@ -52,8 +53,3 @@ permalink: /reading/
 + 微机原理与接口技术
 
 ### 计划中
-
-+ 重构
-+ 领域驱动设计
-+ Unix编程艺术
-+ 编码
