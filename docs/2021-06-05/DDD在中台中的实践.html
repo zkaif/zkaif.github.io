@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Begin Jekyll SEO tag v2.7.1 -->
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>DDD在中台中的实践 | Kaifan&amp;Blog</title>
-<meta name="generator" content="Jekyll v4.2.0" />
+<meta name="generator" content="Jekyll v4.3.4" />
 <meta property="og:title" content="DDD在中台中的实践" />
 <meta name="author" content="凯帆" />
 <meta property="og:locale" content="en_US" />
@@ -17,11 +17,11 @@
 <meta property="og:url" content="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5" />
 <meta property="og:site_name" content="Kaifan&amp;Blog" />
 <meta property="og:type" content="article" />
-<meta property="article:published_time" content="2021-06-05T00:00:00+08:00" />
+<meta property="article:published_time" content="2021-06-05T00:00:00+00:00" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="DDD在中台中的实践" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5"},"url":"/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5","author":{"@type":"Person","name":"凯帆"},"headline":"DDD在中台中的实践","description":"业务至上","dateModified":"2021-06-05T00:00:00+08:00","datePublished":"2021-06-05T00:00:00+08:00","@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"凯帆","url":"https://www.zhoukaifan.com"},"dateModified":"2021-06-05T00:00:00+00:00","datePublished":"2021-06-05T00:00:00+00:00","description":"业务至上","headline":"DDD在中台中的实践","mainEntityOfPage":{"@type":"WebPage","@id":"/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5"},"url":"/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -84,7 +84,7 @@
 
     
       <br>
-      <span>发布于&nbsp;</span><time datetime="2021-06-05 00:00:00 +0800">2021年06月05日</time>
+      <span>发布于&nbsp;</span><time datetime="2021-06-05 00:00:00 +0000">2021年06月05日</time>
     
   </div>
 
@@ -102,7 +102,7 @@
 
 <h3 id="四层架构">四层架构</h3>
 
-<p><img src="../img/四层架构aaa.jpg" alt="" /></p>
+<p><img src="../img/657268921123.jpg" alt="" /></p>
 
 <ul>
   <li>合理的分层可以让开发人员更加专注于领域本身</li>
@@ -126,7 +126,7 @@
 
 <p>*注：图片来源于网络</p>
 
-<p><img src="../img/端口适配器架构图.png" alt="图片来源于以下文章" /></p>
+<p><img src="../img/6427541378419.png" alt="图片来源于以下文章" /></p>
 
 <p>大家可以阅读这篇文章了解端口适配器<a href="https://herbertograca.com/2017/09/14/ports-adapters-architecture/">https://herbertograca.com/2017/09/14/ports-adapters-architecture/</a></p>
 
@@ -134,7 +134,7 @@
 
 <p>所以我们可以把四层架构演变成以下架构——依赖倒置</p>
 
-<p><img src="../img/依赖倒置DDD.jpg" alt="" /></p>
+<p><img src="../img/743872873892.jpg" alt="" /></p>
 
 <h3 id="中台与ddd">中台与DDD</h3>
 
@@ -146,19 +146,19 @@
 
 <p>在中台服务的拆分中每个中台服务均会对外提供一个能力范围，每个中台应用会应对多种复杂业务场景设计出一个通用抽象的领域模型，但是实际上在某一业务中对于中台应用提供的能力会有自己的视角，这种情况下可以使用上下文映射的方式，在自己的系统中设计一个中台某个领域在本系统中的领域模型的映射，异常更好的关注自己所关心的部分。这种方式在交易这种串接上下的系统中特别有效。</p>
 
-<p><img src="../img/中台DDD上下文映射.png" alt="" /></p>
+<p><img src="../img/837248681291123123.png" alt="" /></p>
 
 <h3 id="反腐层">反腐层</h3>
 
 <p>上下文映射的实现通常无法避免领域模型的转换，引入反腐层是一个非常优秀的设计，我们可以在基础设施层屏蔽掉模型的差异，让领域层更加专注领域本身。用户接口层也可以引入反腐层进行向上反腐。</p>
 
-<p><img src="../img/中台DDD反腐层.png" alt="" /></p>
+<p><img src="../img/743874878293.png" alt="" /></p>
 
 <h3 id="cqrs架构">CQRS架构</h3>
 
 <p>*注：图片来源于网络</p>
 
-<p><img src="../img/CQRS架构.jpeg" alt="" /></p>
+<p><img src="../img/CQRS13.jpeg" alt="" /></p>
 
 <p>我不行过多的解释CQRS，大家可以自行查阅相关资料，我只对于其中提出的模型分离感兴趣，我更倾向于在足够复杂的场景下把用于处理业务的模型与用于查询的模型分离，以得到一个更加存粹用于处理业务的领域模型，这并不意味着读写分离，业务模型仍然会用于查询，但是仅限于主键查询并返回只关心本领域的业务模型数据。</p>
 
@@ -166,7 +166,7 @@
 
 <p>在CQRS带来的思考后，我结合数据搜索中心的需求，将领域中的一切复杂查询剥离到搜索服务中</p>
 
-<p><img src="../img/中台DDD数据搜索.png" alt="image-20210605143451816" /></p>
+<p><img src="../img/7438723289e839.png" alt="image-20210605143451816" /></p>
 
 <p>图中左边部分是原有的业务系统去除掉复杂查询（如列表查询，各种字段搜索排序，范围筛选）后的剩余部分。右边是一个专门用于搜索的领域模型，你甚至可以设计多种模型应对各种复杂的查询。</p>
 
@@ -192,7 +192,7 @@
 
     <footer>
   <span>
-    &copy; <time datetime="2022-02-11 17:21:06 +0800">2022</time> 凯帆. Made with Jekyll using the Tale theme.
+    &copy; <time datetime="2024-12-27 03:02:58 +0000">2024</time> 凯帆. Made with Jekyll using the Tale theme.
   </span>
 </footer>
 

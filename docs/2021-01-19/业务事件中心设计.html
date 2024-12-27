@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Begin Jekyll SEO tag v2.7.1 -->
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>业务事件中心设计思想 | Kaifan&amp;Blog</title>
-<meta name="generator" content="Jekyll v4.2.0" />
+<meta name="generator" content="Jekyll v4.3.4" />
 <meta property="og:title" content="业务事件中心设计思想" />
 <meta name="author" content="凯帆" />
 <meta property="og:locale" content="en_US" />
@@ -17,11 +17,11 @@
 <meta property="og:url" content="/2021-01-19/%E4%B8%9A%E5%8A%A1%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1" />
 <meta property="og:site_name" content="Kaifan&amp;Blog" />
 <meta property="og:type" content="article" />
-<meta property="article:published_time" content="2021-01-19T00:00:00+08:00" />
+<meta property="article:published_time" content="2021-01-19T00:00:00+00:00" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="业务事件中心设计思想" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"/2021-01-19/%E4%B8%9A%E5%8A%A1%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1"},"url":"/2021-01-19/%E4%B8%9A%E5%8A%A1%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1","author":{"@type":"Person","name":"凯帆"},"headline":"业务事件中心设计思想","description":"本文只是提供一个简单的思考方向，实现方案只是举例说明，如果读者也需要一个类似的功能，可以根据以下思路去完善。","dateModified":"2021-01-19T00:00:00+08:00","datePublished":"2021-01-19T00:00:00+08:00","@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"凯帆","url":"https://www.zhoukaifan.com"},"dateModified":"2021-01-19T00:00:00+00:00","datePublished":"2021-01-19T00:00:00+00:00","description":"本文只是提供一个简单的思考方向，实现方案只是举例说明，如果读者也需要一个类似的功能，可以根据以下思路去完善。","headline":"业务事件中心设计思想","mainEntityOfPage":{"@type":"WebPage","@id":"/2021-01-19/%E4%B8%9A%E5%8A%A1%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1"},"url":"/2021-01-19/%E4%B8%9A%E5%8A%A1%E4%BA%8B%E4%BB%B6%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -84,7 +84,7 @@
 
     
       <br>
-      <span>发布于&nbsp;</span><time datetime="2021-01-19 00:00:00 +0800">2021年01月19日</time>
+      <span>发布于&nbsp;</span><time datetime="2021-01-19 00:00:00 +0000">2021年01月19日</time>
     
   </div>
 
@@ -122,7 +122,7 @@
 
 <h3 id="总体架构">总体架构</h3>
 
-<p><img src="../img/事件架构.png" alt="事件架构" /></p>
+<p><img src="../img/743874284382.png" alt="事件架构" /></p>
 
 <p>事件中心以与业务不相关的方式去实现，统一向业务方提供服务，事件中心仅仅解决如何触发的问题，减轻业务库的压力。</p>
 
@@ -143,11 +143,11 @@
 
 <p>时间时间用于处理多少时间后通知业务的场景，定时调度保证租户ID纬度单线程</p>
 
-<p><img src="../img/时间时间流程.png" alt="时间时间流程" /></p>
+<p><img src="../img/647254571.png" alt="时间时间流程" /></p>
 
 <p>增量事件用于处理数量到达一定值的时候触发业务，第一次注册创建事件，后续注册增加值，超时机制只是确保一个事件的失效不要让业务依赖它，可以同时创建一个时间事件补充，定时调度保证租户ID纬度单线程</p>
 
-<p><img src="../img/增量事件流程.png" alt="增量事件流程" /></p>
+<p><img src="../img/64736482321.png" alt="增量事件流程" /></p>
 
 <h3 id="事件管理器">事件管理器</h3>
 
@@ -164,7 +164,7 @@
 
 <p>这样我们把每个事件的三方id和对应的操作保存在事件管理器中，并且事件管理器也可以有参数，我们可以配置这些参数传给某个事件的某个字段。</p>
 
-<p><img src="../img/管理器流程.png" alt="管理器流程" /></p>
+<p><img src="../img/642574138412.png" alt="管理器流程" /></p>
 
 <h3 id="总结">总结</h3>
 
@@ -188,7 +188,7 @@
 
     <footer>
   <span>
-    &copy; <time datetime="2022-02-11 17:21:06 +0800">2022</time> 凯帆. Made with Jekyll using the Tale theme.
+    &copy; <time datetime="2024-12-27 03:02:58 +0000">2024</time> 凯帆. Made with Jekyll using the Tale theme.
   </span>
 </footer>
 
