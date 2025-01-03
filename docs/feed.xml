@@ -1,4 +1,295 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2024-12-30T18:06:21+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">DDD在中台中的实践</title><link href="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5" rel="alternate" type="text/html" title="DDD在中台中的实践" /><published>2021-06-05T00:00:00+08:00</published><updated>2021-06-05T00:00:00+08:00</updated><id>/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5</id><content type="html" xml:base="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5"><![CDATA[<h3 id="业务至上">业务至上</h3>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-01-03T23:41:57+08:00</updated><id>/feed.xml</id><title type="html">Kaifan&amp;amp;Blog</title><subtitle>null</subtitle><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><entry><title type="html">如何提高业务代码的可读性</title><link href="/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7" rel="alternate" type="text/html" title="如何提高业务代码的可读性" /><published>2024-12-31T00:00:00+08:00</published><updated>2024-12-31T00:00:00+08:00</updated><id>/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7</id><content type="html" xml:base="/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7"><![CDATA[<h3 id="背景">背景</h3>
+
+<p>​	最近看了一些系统的历史代码，直观感受是很乱，不知道原有逻辑再做什么，也不知道新逻辑写在什么地方合适，来来回回还是自己加一个先对独立的逻辑实现需求，这样就更加混乱了。单看某个模块其实代码结构上是有很多用心设计的样子的，所以一直想弄清楚系统为什么变复杂了。目前有了一点阶段性的结论，先整理一下。</p>
+
+<p>​	这里我不再考虑一些概念性的东西，像封装、继承、多态这些，或者是一些基本原则。这些所有人都能很好的说出来并且应用，我从最表面的代码结构来讨论一下。首先系统的代码维护，这是一个工程，我们的目标很明确就是持续迭代。迭代一个系统最基本的是“看得懂”，然后才是“怎么写”。而编写好的代码的判断指标之一就是“可读性”，也就是后人如何“看得懂”。所以本文主要就来讨论业务系统中的代码可读性。最后顺便考虑一下最近说的单元测试。</p>
+
+<h3 id="业务系统的可读性">业务系统的可读性</h3>
+
+<p>​	想要让大家更好的读懂业务代码，我们首先要弄清楚大家的关注点是什么。</p>
+
+<ul>
+  <li>业务系统核心是业务流程（注意这里是流程不是某个功能的细节）。</li>
+  <li>其次是系统的外部依赖。</li>
+  <li>然后会关注一个业务模型（数据）的作用范围</li>
+  <li>至于某个功能点的细节只有修改涉及到的时候才会去关注。</li>
+</ul>
+
+<p>​	我在举个例子，以我现在正在开发的电梯估价接口来说。如果后续有人要在电梯上开发一个新功能，评估改动的时候肯定会有如下的流程：</p>
+
+<ul>
+  <li>得到产品需求，知道业务什么样</li>
+  <li>先弄清楚电梯估价接口到底做了什么事情，能不能和业务对应上</li>
+  <li>有什么事情是HomePage做的什么，什么是下游提供的</li>
+  <li>电梯里面的SkuEntity模型到底什么地方用了，我的改动会不会有什么影响</li>
+  <li>如果我要改盒子逻辑，盒子依赖了什么数据，具体怎么实现，有什么细节要关注</li>
+</ul>
+
+<p>​	其实可以发现阅读业务代码的时候是有一个关注度的。不同的层级关注的东西不一样，那么顺应这个阅读流程的代码可读性就会很强。</p>
+
+<h4 id="代码举例">代码举例</h4>
+
+<p>​	我们来看下这个application层的代码，这是一个Service中的代码。</p>
+
+<pre><code class="language-Java">public ValuatePriceElevatorEntity productCenterElevatorValuatePrice(ValuateDemandEntity valuateDemandEntity) {
+				//异步流程最大时间 product.center.elevator.valuate.price.async.timeout
+        //估价开始前先记录时间，这样如果整个接口耗时过大，就不等异步流程返回了。有利于控制整体耗时。所以这是一个兜底的超时控制
+        long timeOut = System.currentTimeMillis()+ApolloConfigUtil.getLongProperty(ApolloConstants.PRODUCT_CENTER_ELEVATOR_VALUATE_PRICE_ASYNC_TIMEOUT,4000L);
+
+        List&lt;String&gt; goodsSkuList = operatePlatformService.getElevatorValuatePriceGoodsSkuConfig();
+        valuateDemandEntity.setGoodsSkuList(goodsSkuList);
+
+        //查询用户首单信息
+        CompletableFuture&lt;PassengerFirstOrderInfoVO&gt; passengerFirstOrderInfoVOCompletableFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return userInfoService.queryPassengerFirstOrderInfo(valuateDemandEntity.getUserNewId());
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+        //用户选择偏好
+        CompletableFuture&lt;PassengerUserPreferencesInfoVO&gt; passengerUserPreferencesInfoVOFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return userInfoService.queryPassengerUserPreferencesInfo(valuateDemandEntity.getUserNewId());
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+
+        valuateDemandEntity.fillDefaultValueIfNull();
+        //估价模块
+        List&lt;SkuPriceInfo&gt; skuPriceInfoList = asyncValuate(valuateDemandEntity);
+        ValuatePriceElevatorEntity valuatePriceElevatorEntity = ValuatePriceElevatorFactory.createElevatorEntity(valuateDemandEntity,skuPriceInfoList);
+
+        //获取地图使用什么业务线的配置
+        ElevatorValuatePricePathPlanBizConfig elevatorValuatePricePathPlanBizConfig = operatePlatformService.getElevatorValuatePricePathPlanBizConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getUserNewId());
+        valuatePriceElevatorEntity.fillPathPlanByBizCode(elevatorValuatePricePathPlanBizConfig.getPathPlanBizCodeEnum());
+        valuatePriceElevatorEntity.fillDemandInfo();
+
+        //异步查询举手率
+        List&lt;String&gt; skuCodeList = valuatePriceElevatorEntity.parseAllSkuCodeList();
+        CompletableFuture&lt;List&lt;TaxiBottomSkuHandUpRateInfo&gt;&gt; taxiBottomSkuHandUprRateCompletableFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return userInfoService.getTaxiBottomSkuHandUprRate(
+                    valuateDemandEntity.getStartPosition().getCityCode(),
+                    Long.valueOf(valuateDemandEntity.getDistance()),
+                    skuCodeList);
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+        //价敏系数
+        CompletableFuture&lt;String&gt; elasticityScoreCompletableFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return extractElasticityScore(valuateDemandEntity, new ArrayList&lt;&gt;(skuPriceInfoList));
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+
+        //品类过滤配置
+        ElevatorValuatePriceSkuFilterConfig elevatorValuatePriceSkuFilterConfig = operatePlatformService.getElevatorValuatePriceSkuFilterConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getDistance(),
+                valuateDemandEntity.getStartPlanStartTime(),
+                valuateDemandEntity.getInstantType(),
+                valuateDemandEntity.isCrossCity(),
+                valuateDemandEntity.getUserNewId());
+        if (elevatorValuatePriceSkuFilterConfig!=null) {
+            valuatePriceElevatorEntity.filterSkuBySkuList(elevatorValuatePriceSkuFilterConfig.getFilterSkuList());
+        }
+
+        //品类卡片配置
+        Map&lt;String,ElevatorValuatePriceSkuCardConfig&gt; elevatorValuatePriceSkuCardConfigMap = operatePlatformService.getElevatorValuatePriceSkuCardConfigMap(
+                valuateDemandEntity.getUserNewId(),
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuatePriceElevatorEntity.parseAllSkuCodeList());
+
+        //运力不可选状态，归类到不可选模块
+        ProductCenterValuatePriceTimeConfig productCenterValuatePriceTimeConfig = operatePlatformService.getProductCenterValuatePriceTimeConfig(
+                valuateDemandEntity.getUserNewId(),
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getEndPosition().getCityCode());
+        valuatePriceElevatorEntity.groupSkuForUnavailable(productCenterValuatePriceTimeConfig,elevatorValuatePriceSkuCardConfigMap);
+
+        //附近无车聚类
+        ElevatorValuatePriceSkuNoCarConfig elevatorValuatePriceSkuNoCarConfig = operatePlatformService.getElevatorValuatePriceSkuNoCarConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getDistance(),
+                valuateDemandEntity.getStartPlanStartTime(),
+                valuateDemandEntity.getUserNewId());
+        if (elevatorValuatePriceSkuNoCarConfig!=null) {
+            List&lt;TaxiBottomSkuHandUpRateInfo&gt; taxiBottomSkuHandUprRate = CompletableFutureUtils.getTimeOutForTime(taxiBottomSkuHandUprRateCompletableFuture, new ArrayList&lt;&gt;(), timeOut);
+            valuatePriceElevatorEntity.groupSkuForNoCar(elevatorValuatePriceSkuNoCarConfig,taxiBottomSkuHandUprRate,elevatorValuatePriceSkuCardConfigMap);
+        }
+        //品类正常聚类成电梯，包含盒子逻辑
+        PassengerFirstOrderInfoVO passengerFirstOrderInfoVO = CompletableFutureUtils.getTimeOutForTime(passengerFirstOrderInfoVOCompletableFuture, PassengerFirstOrderInfoVO.defaultVO, timeOut);
+        Boolean phFirstOrder = passengerFirstOrderInfoVO.getPhFirstOrder();
+        List&lt;ElevatorValuatePriceSkuGroupConfig&gt; elevatorValuatePriceSkuGroupConfigList = operatePlatformService.getElevatorValuatePriceSkuGroupConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getDistance(),
+                valuateDemandEntity.getStartPlanStartTime(),
+                valuateDemandEntity.getInstantType(),
+                phFirstOrder,
+                valuateDemandEntity.isCrossCity(),
+                valuateDemandEntity.getAdSource(),
+                valuateDemandEntity.getUserNewId());
+        if (CollectionUtils.isNotEmpty(elevatorValuatePriceSkuGroupConfigList)) {
+            valuatePriceElevatorEntity.groupAllSkuAndSkuBox(elevatorValuatePriceSkuGroupConfigList,elevatorValuatePriceSkuCardConfigMap);
+        }
+        //剩余的品类聚类成其他模块
+        valuatePriceElevatorEntity.groupOtherSku(elevatorValuatePriceSkuCardConfigMap);
+
+        //将电梯进行排序
+        valuatePriceElevatorEntity.sort();
+}
+</code></pre>
+
+<p>这个逻辑其实挺长的，有小一百行了。但是仔细看一遍后是可以快速理解的。原因如下</p>
+
+<ul>
+  <li>
+    <p>电梯相关的业务流程已经全部表达清楚了</p>
+  </li>
+  <li>
+    <p>功能点的执行都是在Entity内部如valuatePriceElevatorEntity.groupOtherSku，Entity内部不会有远程调用，每个功能点的数据依赖都是非常明确的</p>
+  </li>
+  <li>
+    <p>外部的数据来源，配置、下游服务、依赖的领域服务（看注释），都是非常明确的。外部依赖的入参也是明确的基本字段。</p>
+
+    <ul>
+      <li>
+        <blockquote>
+          <p>注释：领域服务不在本文中说明 ，这是DDD的概念，这是用来封装复用的手段，需要抽象逻辑，不是存粹用来简化service层代码的。</p>
+        </blockquote>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>数据使用范围如首单phFirstOrder变量被什么功能用了一眼就能看清楚，怎么来的也很清楚。并且使用范围不会逃出这个方法。被Entity使用后由于Entity没有外部调用是纯粹的功能点，后续也好维护。</p>
+  </li>
+</ul>
+
+<h4 id="代码反例">代码反例</h4>
+
+<p>这里我再修改一下代码，大家看下对可读性的影响</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">productCenterElevatorValuatePrice</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">)</span> <span class="o">{</span>
+  <span class="o">...............</span>
+        <span class="c1">//附近无车聚类</span>
+        <span class="nc">ElevatorValuatePriceSkuNoCarConfig</span> <span class="n">elevatorValuatePriceSkuNoCarConfig</span> <span class="o">=</span> <span class="n">operatePlatformService</span><span class="o">.</span><span class="na">getElevatorValuatePriceSkuNoCarConfig</span><span class="o">(</span><span class="n">valuateDemandEntity</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">elevatorValuatePriceSkuNoCarConfig</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">List</span><span class="o">&lt;</span><span class="nc">TaxiBottomSkuHandUpRateInfo</span><span class="o">&gt;</span> <span class="n">taxiBottomSkuHandUprRate</span> <span class="o">=</span> <span class="nc">CompletableFutureUtils</span><span class="o">.</span><span class="na">getTimeOutForTime</span><span class="o">(</span><span class="n">taxiBottomSkuHandUprRateCompletableFuture</span><span class="o">,</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(),</span> <span class="n">timeOut</span><span class="o">);</span>
+            <span class="n">valuatePriceElevatorEntity</span><span class="o">.</span><span class="na">groupSkuForNoCar</span><span class="o">(</span><span class="n">elevatorValuatePriceSkuNoCarConfig</span><span class="o">,</span><span class="n">taxiBottomSkuHandUprRate</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+        <span class="o">}</span>
+  			<span class="n">groupSku</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+        <span class="c1">//将电梯进行排序</span>
+        <span class="n">valuatePriceElevatorEntity</span><span class="o">.</span><span class="na">sort</span><span class="o">();</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">groupSku</span><span class="o">(</span><span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span><span class="o">,</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="n">valuatePriceElevatorEntity</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">//剩余的品类聚类成其他模块</span>
+        <span class="n">groupOtherSku</span><span class="o">(</span><span class="n">valuatePriceElevatorEntity</span><span class="err">，</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span><span class="o">,</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//品类正常聚类成电梯，包含盒子逻辑</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuGroupConfigList</span> <span class="o">=</span> <span class="n">operatePlatformService</span><span class="o">.</span><span class="na">getElevatorValuatePriceSkuGroupConfig</span><span class="o">(</span><span class="n">valuateDemandEntity</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">CollectionUtils</span><span class="o">.</span><span class="na">isNotEmpty</span><span class="o">(</span><span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">))</span> <span class="o">{</span>
+  <span class="c1">//聚类 逻辑直接在service中实现</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">groupOtherSku</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">//剩余的品类聚类成其他模块</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//operatePlatformService</span>
+<span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="nf">getElevatorValuatePriceSkuGroupConfig</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">){</span>
+  <span class="c1">//mapStruct转换</span>
+  			<span class="nc">FeatureGetParam</span> <span class="n">featureGetParam</span> <span class="o">=</span> <span class="n">valuateDemandEntityToParam</span><span class="o">(</span><span class="n">valuateDemandEntity</span><span class="o">)</span>
+        <span class="nc">Boolean</span> <span class="n">phFirstOrder</span> <span class="o">=</span> <span class="n">aiBrainQuadFeatureFacade</span><span class="o">.</span><span class="na">getFirstOrderFeature</span><span class="o">(</span><span class="n">featureGetParam</span><span class="o">);</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">configList</span> <span class="o">=</span> <span class="nc">PHRuleSDK</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="no">USER_GROWTH</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">getObjectList</span><span class="o">(</span><span class="nc">Consts</span><span class="o">.</span><span class="na">OperationPlatform</span><span class="o">.</span><span class="na">ELEVATOR_VALUATE_SKU_GROUP_CONFIG</span><span class="o">,</span>
+                        <span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+                        <span class="n">cityCode</span><span class="o">,</span>
+                        <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(),</span>
+                        <span class="n">userNewId</span><span class="o">,</span>
+                        <span class="kc">null</span><span class="o">);</span>
+        <span class="k">if</span><span class="o">(</span><span class="nc">CollectionUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">configList</span><span class="o">)){</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">configs</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span> <span class="nl">config:</span><span class="n">configList</span><span class="o">){</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">usable</span><span class="o">(</span><span class="n">distance</span><span class="o">,</span><span class="n">planStartTime</span><span class="o">,</span><span class="n">instantType</span><span class="o">,</span><span class="n">adSource</span><span class="o">,</span><span class="n">crossCity</span><span class="o">,</span><span class="n">phFirstOrder</span><span class="o">)){</span>
+                <span class="n">configs</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">configs</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>初步看下来productCenterElevatorValuatePrice中的逻辑一样简洁，但是评估需求改动的时候通常不敢下定论</p>
+
+<ul>
+  <li>getElevatorValuatePriceSkuGroupConfig的依赖返回很大，里面还有远程调用。</li>
+  <li>featureGetParam的转换逻辑也要确认才能明确数据的依赖范围</li>
+  <li>groupSku也是一个service，可能有外部依赖，并且直接依赖了Entity</li>
+  <li>再下层的groupAllSkuAndSkuBox也是一个service</li>
+</ul>
+
+<p>修改后的代码或许再编写的时候不会有什么问题，每个功能点分了模块，都依赖entity。但是在后续评估改动范围和阅读的时候存在了很多困扰，另外随着迭代调用深度会加大，数据的使用范围会难以控制，且外部调用进一步隐藏难以发现。最后只能询问谁熟悉这块逻辑。其实熟悉的不是业务，而是代码结构和数据的作用范围，业务通常用语言能解释。但是代码中的一些细节和其导致的业务默认行为是难以理解的。</p>
+
+<h3 id="业务代码的单元测试">业务代码的单元测试</h3>
+
+<p>​	因为目前在推进单元测试，所以这里顺便从代码结构的角度说一下单元测试的落地。我们分别从上述的例子1和2来编写单元测试看一下效果。</p>
+
+<h4 id="例子1单元测试">例子1单元测试</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">filterSkuBySkuListTest</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span> <span class="o">=</span> <span class="n">mock数据</span>
+
+        <span class="nc">ElevatorValuatePriceSkuFilterConfig</span> <span class="n">elevatorValuatePriceSkuFilterConfig</span> <span class="o">=</span> <span class="n">mock数据</span>
+
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span> <span class="o">=</span> <span class="n">mock数据</span>
+        
+       <span class="c1">//执行单测</span>
+          <span class="n">valuatePriceElevatorEntity</span><span class="o">.</span><span class="na">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+      
+      <span class="c1">//校验结果valuatePriceElevatorEntity</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="例子2单元测试">例子2单元测试</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">filterSkuBySkuListTest</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span> <span class="o">=</span> <span class="n">mock数据</span>
+          
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span> <span class="o">=</span> <span class="n">mock数据</span>
+          
+          <span class="c1">//groupAllSkuAndSkuBox中有外部依赖，需要mock</span>
+        <span class="nc">MockOperatePlatformService</span> <span class="n">mockOperatePlatformService</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MockOperatePlatformService</span><span class="o">();</span>
+        <span class="n">service</span><span class="o">.</span><span class="na">setOperatePlatformService</span><span class="o">(</span><span class="n">mockOperatePlatformService</span><span class="o">);</span>
+      
+       <span class="c1">//执行单测</span>
+       <span class="n">service</span><span class="o">.</span><span class="na">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="n">valuatePriceElevatorEntity</span><span class="err">，</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+     
+      
+      <span class="c1">//校验结果valuatePriceElevatorEntity</span>
+    <span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">MockOperatePlatformService</span> <span class="kd">extends</span> <span class="nc">OperatePlatformService</span> <span class="o">{</span>
+  <span class="c1">//operatePlatformService</span>
+  <span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="nf">getElevatorValuatePriceSkuGroupConfig</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">){</span>
+    <span class="c1">//mock数据</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>​	这里可以看到例子2的单元测试的成本是更高的，如果有大量的外部依赖，或者调用链路太深，单元测试难以执行。另外OperatePlatformService如果出现改动，对单元测试影响就更大，例子1依赖的是config实体，他的改动可能性远比service方法定义的改动低的多。</p>
+
+<p>​	业务中变动的逻辑主要还是功能点，复杂逻辑和业务细节也是功能点，所以单元测试也应该集中在功能点的测试。那么相对独立且明确数据依赖的功能点对单元测试是有利的。</p>
+
+<h3 id="总结">总结</h3>
+
+<p>​	其实总结一下，业务代码可读性的核心在于编码时考虑阅读业务代码的思路，把关注点在代码的第一层级中直接表现出来。代码的可读性要多考虑系统的目的，如果业务系统偏向中台或者平台，那这种流程式的代码结构是否适用有待讨论。而对于中间件或者工具，其标准也是不同的，本文主要讨论业务系统的可读性。</p>
+
+<p>​	另外关于设计模式对业务代码可读性的影响也需要进一步讨论，有时候为了扩展性导致核心业务流程被隐藏，是否是值得的。</p>
+
+<p>​	个人认为业务代码需要足够简单，流程化。然后将数据与使用数据的业务功能归到一起，对于后续功能的扩展之前修改对应代码即可，只要业务代码足够简洁明了，并不需要过多的扩展性设计。核心在于更清晰的表达业务，和限定数据使用范围。</p>]]></content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="Java" /><category term="代码结构" /><summary type="html"><![CDATA[背景]]></summary></entry><entry><title type="html">DDD在中台中的实践</title><link href="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5" rel="alternate" type="text/html" title="DDD在中台中的实践" /><published>2021-06-05T00:00:00+08:00</published><updated>2021-06-05T00:00:00+08:00</updated><id>/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5</id><content type="html" xml:base="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5"><![CDATA[<h3 id="业务至上">业务至上</h3>
 
 <ul>
   <li>业务系统的根本是业务。软件的核心是解决领域内相关问题的能力，实现方式只是一种工具。DDD是为了应对复杂领域而存在的。</li>
@@ -3473,205 +3764,4 @@ call DispStr//调用DispStr
 <p>现在如何抽象一个售后单，让我们把重点放到售后业务本身，而不是售后单。快递、生鲜他们都是对于某次交易中不满意商品的协商处理过程。这两个业务场景中售后仅能对单个商品发起，但是并不是所有售后业务都是单商品售后，这让他们之间多了一些其他售后流程没有的共性，即单商品售后流程，代码实现上我们就可以抽象出一个最抽象的父类售后单，抽象类单商品售后单，然后才是快递售后单和生鲜售后单。售后流程中的各种操作过程作为售后单的方法被编码。其他视角其实也是相同的。另外从更广的角度来说对各种单据的抽象可以是的售后单被归类到某种单据的实现中去——抽象一个售后单</p>
 
 <h3 id="总结">总结</h3>
-<p>在面对这样的业务时，容易犯错就是将关注点本身放到售后单本身而不是售后业务本身，容易忽略一个事情就是，售后单本质上是现实生活中的人们为了更好的进行售后，而将售后业务抽象后产生的某种产物，售后单本身已经为我们实现售后功能做了很多工作，但是千万不能忘记一点，把关注点放到业务而不是数据，像售后单的状态代表的是当前售后处在什么环节，而不是真的表示这个售后单是什么状态。</p>]]></content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务架构" /><summary type="html"><![CDATA[背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用]]></summary></entry><entry><title type="html">云片RocketMQ实战：Stargate的前世今生</title><link href="/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98-Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F" rel="alternate" type="text/html" title="云片RocketMQ实战：Stargate的前世今生" /><published>2019-08-16T00:00:00+08:00</published><updated>2019-08-16T00:00:00+08:00</updated><id>/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98%EF%BC%9AStargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F</id><content type="html" xml:base="/2019-08-16/%E4%BA%91%E7%89%87RocketMQ%E5%AE%9E%E6%88%98-Stargate%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F"><![CDATA[<p>云片由于其业务特点对应消息队列的使用十分频繁，这里以云片短信业务为例，短信业务的逻辑十分简单，我们只看主流程，本质就是接受用户请求，寻找合适的通道，使用cmpp/smpp协议提交给运营商。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZmtTOFFpY1EzS3c0N1Z6MmZkYlppYmo2czJZWTNldjFWTzBHVW1pY3BIV3RSZWlib21pYXpIOEVmcm5nLzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp" alt="img" /></p>
-
-<p>我们可以发现，用户的每次请求要一直等待运营商的响应，这样主要的问题是：</p>
-
-<ul>
-  <li>云片的服务器再运营商返回时需要一直维护http连接</li>
-  <li>运营商的处理速率直接限制了云片的处理速率</li>
-  <li>云片的最大并发为所有供应商并发之和</li>
-</ul>
-
-<p>这种情况下我们无法提供稳定的服务。</p>
-
-<p>实际上对于用户来说并不关心具体流程他们只需将短信提交给云片即可，所以我们可以异步的处理这些发送过程，确认收到短信后就可以给用户返回结果以提高响应速度。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZjJ5Nll0Nm93VmljdjNJcGljaEt3WWRHNVdOb0xnTGUwd3JobDhpYVdqdWZsYWJXTnQ2bUdsQUd0US82NDA_d3hfZm10PWpwZWcmdHA9d2VicCZ3eGZyb209NSZ3eF9sYXp5PTEmd3hfY289MQ.webp" alt="img" /></p>
-
-<p>日常情况我们的系统流量会是一个比较平稳的值X，所以我们提供能满足的当前流量的消费能力，这样消息就不会积压。</p>
-
-<p>不过随着流量的增加最终实践流量会超过我们的消费能力，这样就会出现短信送达延迟，图中虚线右边是我们不希望看到的。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZjBqMVNwQ2czOXpKeU5mcUMwdzdpY2NDNTNLWkVGMXlPTGJSR3pSZ2hkV2V5cm5uUGVNb2FXOFEvNjQwP3d4X2ZtdD1qcGVnJnRwPXdlYnAmd3hmcm9tPTUmd3hfbGF6eT0xJnd4X2NvPTE.webp" alt="img" /></p>
-
-<p>所以我们在流量到达虚线前提高系统的消费能力。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZmliSFp1dzBGdjRpYzNQUnFrVGhNbVlqNWI0Y0dYT1p3amcxSXRobjc0ZUplZ0RHajM1TEtIMTVnLzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp" alt="img" /></p>
-
-<p>### Stargate</p>
-
-<p>我们可以看到云片对应消息队列的重度依赖，使得在微服务化的时候没有找到一个适合云片的好用的annotation组件，当时SpringCloud框架并没有对RocketMQ支持的相关组件，而RocketMQ官方github上仅有一个不成熟的项目。</p>
-
-<p>对于目前重度依赖RocketMQ的短信业务我们需要一个简单易用并且能够与我们老项目中代码兼容的注解，同时还要满足各团队的不同需求，于是我们开始一个名为Stargate的组件来支持我们后续的服务化推进。</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@StargateProducer</span>
-<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">TestProducter</span> <span class="o">{</span>
-  <span class="nd">@StargateMapper</span><span class="o">(</span><span class="s">"testaaa"</span><span class="o">)</span>
-  <span class="nc">SendResult</span> <span class="nf">test</span><span class="o">(</span><span class="nd">@StargateBody</span> <span class="nc">TestVO</span> <span class="n">message</span><span class="o">);</span>
-<span class="o">}</span>
-</code></pre></div></div>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@StargateConsumer</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestConsumer</span> <span class="o">{</span>
-  <span class="nd">@StargateMapper</span><span class="o">(</span><span class="s">"testaaa"</span><span class="o">)</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">(</span><span class="nd">@StargateBody</span> <span class="nc">TestVO</span> <span class="n">message</span><span class="o">){</span>
-    <span class="c1">//TODO</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div></div>
-
-<h4 id="stargate组件为什么出现">Stargate组件为什么出现？</h4>
-
-<p>事实上在有Stargate之前我们的项目中有一个对RocketMQ SDK的封装，它确实解决的许多问题，但是面对越来越多的生产者和消费者我们越来越难以维护，甚至于碰到不熟悉的代码我曾经花了半小时去找一个生产者的消费者在哪里，这个消费者被各种继承重写，生产者的topic是以一种极其复杂的规则生成的，而且各种配置文件散落在代码的各各角落。</p>
-
-<p>然后旧的组件也十分难以迁移到新的微服务项目中，以至于有的业务线开始自己从新封装一套组件，而且他们生产者的消息难以被其他团队的消费。于是我希望做一套能够避免这些不良使用习惯的组件，并且提供强大的兼容性让大家迁移过来。</p>
-
-<h4 id="设计stargate的目标是">设计Stargate的目标是？</h4>
-
-<p>所以在设计Stargate的时候主要考虑以下几点：·</p>
-
-<ul>
-  <li>简单易用</li>
-</ul>
-
-<p>注解的方式相比直接使用RocketMQ更加清晰，上手更快，更易用，避免各种不良写法。</p>
-
-<ul>
-  <li>扩展性强</li>
-</ul>
-
-<p>SG1提供的扩展插件能够丰富Stargate的功能，而且这个插件的开发能力是开放的，后续会提到。实际上插件功能是在2.0增加应为我发现在限制大家的使用方式后，我需要定制许多的注解来兼容各种使用场景，于是我开放了这部分能力让大家选择性的开发和使用自己需要的功能。</p>
-
-<ul>
-  <li>兼容各种老项目</li>
-</ul>
-
-<p>通过编解码器我们可以兼容各种不同的老项目，不需要修改老项目的代码。</p>
-
-<ul>
-  <li>单元测试更方便</li>
-</ul>
-
-<p>另外再单元测试和开发阶段，无需对外部依赖可以方便的进行mock。</p>
-
-<h4 id="stargate组件的价值">Stargate组件的价值</h4>
-
-<p>最初的时候我简单的认为这个组件的价值在于提供了一个更方便使用RocketMQ的方式，但后续的开发中慢慢的我发现并不是这样，目前来说我认为最有价值的两点在于：</p>
-
-<ul>
-  <li>服务间异步调用的“规范”</li>
-</ul>
-
-<p>由于它的扩展性和兼容性被各各业务线团队采用，似乎成了一个“规范”，服务之间的通信多了一种可选项。我们可以把自己的StargateProducer接口定义放在一个jar包中提供给其他人</p>
-
-<ul>
-  <li>“使用心得”的分享中心</li>
-</ul>
-
-<p>插件的开发能力使得大家会把自己的使用模式封装成一个注解发布出来，这样许多十分巧妙的使用方法会被发布出来，而且这些都是开箱即用的，使用者只需要知道这个注解能实现什么，在发布要求上让开发者符上文档，这样就能形成一个生态，把大家的经验使用沉淀下来。</p>
-
-<p>另外，Stargate对于代码结构方面的帮助也是巨大的，现在我们可以很快速的找到一个生产者的消费者在什么地方，后续甚至考虑提供IDE插件来更好的维护这些代码。</p>
-
-<h3 id="stargate的实现">Stargate的实现</h3>
-
-<h4 id="stargate的初始化">Stargate的初始化</h4>
-
-<p>那么我们接下来，看一下Stargate的这些设计目标是如何实现的，首先我们来看一下组件的入口，我们如何初始化Stargate的。</p>
-
-<p>在应用启动时我们处理部分注解获得一个Bean的配置信息，然后向Spring注册这些Bean，我们为Producer生成代理类，创建Consumer客户端监听消息并且调用StargateConsumer处理这些消息。</p>
-
-<table>
-  <tbody>
-    <tr>
-      <td>生成这些的Bean的入口是从一个工厂类开始的，通常一个StargateProducer</td>
-      <td>StargateConsumer的创建会经过以下几个步骤：</td>
-    </tr>
-  </tbody>
-</table>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZk8zS05IcTd0RXVJcmFjcmF2YVBBcXJpY1lpYlVtOGxoM1FUT0puNEVmNFpzRnJ4TTNSUlM0YTlnLzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp" alt="img" /></p>
-
-<p>事实上Stargate并不负责初始化这些生产者消费者bean，Stargate仅仅提供了创建的过程，我们把这些bean注册到Spring中然后提供一个工厂方法，由spring在适当的时候创建这些bean，维护这些bean。</p>
-
-<p>这样我们在spring中就有了这些生产者接口的实例，我们可以把他注入到任何地方然后使用它们发送消息。监听他的消费者就会调用事先配置好的StargateConsumer。</p>
-
-<h4 id="编解码器">编解码器</h4>
-
-<p>每个发送者和消费者都会在收发消息前进行编解码，这也是兼容原有项目的关键。大家可以思考一下，所有项目的都是使用RocketMQ的，本质的直接调用SDK的Send方法就能发送消息，但是老项目对于如何将一个消息变成二进制数组这是不一样的，所以我们提供编解码器的接口让大家可以替换这些转换过程的实现。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZmFSTThKY1UyS1BuMUFocElpYkZjUmVqeVhWYkp5UFVGcWExUWJxUEVHeDdkQkxpYVFXMFU2ajJ3LzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp" alt="img" /></p>
-
-<h4 id="扩展接口">扩展接口</h4>
-
-<p>但是消息的编解码只能实现兼容性但是对于扩展能力的需求无法满足，所以我们再初始化过程和发送消费过程中抽象出了6个接口，让用户可以扩展自己的逻辑。</p>
-
-<p>这个些接口主要用于处理”注解解析“，”RocketMQ Client创建“，”消息加工“，我们可以从下图中看到，工厂在返回一个bean前会调用这些接口的实现。消息收发阶段也会调用相应的实现。</p>
-
-<p>通常情况下我们实现一个新的注解@DemoModel有这么几个流程：</p>
-
-<ul>
-  <li>实现注解处理器处理注解数据</li>
-  <li>实现Client处理器，根据注解解析的数据加工Client</li>
-  <li>实现消息处理器，根据注解解析的数据加工消息</li>
-</ul>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZkxEQkZVSUhWZTBNcDdySXpXaG1ySGlhZ01hcFhKbHVpYnZrbkQ2VGhQekd3Z2lheU9LTWY0MVJhdy82NDA_d3hfZm10PWpwZWcmdHA9d2VicCZ3eGZyb209NSZ3eF9sYXp5PTEmd3hfY289MQ.webp" alt="img" /></p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZlFaS2ZtVjkzYXpSNUNTZnhCZUxGM1JYa3BvaWJpY1E3aWJGQ3RiM003a01KeEw2b2ZZUVRpYU9tMkEvNjQwP3d4X2ZtdD1wbmcmdHA9d2VicCZ3eGZyb209NSZ3eF9sYXp5PTEmd3hfY289MQ.webp" alt="img" /></p>
-
-<h4 id="上下文">上下文</h4>
-
-<p>这时会有另一个问题，我们通常的流程在解析注解获得的数据需要保存给另外两个处理器使用，我们当然不希望让用户自己处理这些数据，这会增加用户的使用成本。</p>
-
-<p>于是我们定义了一个上下文的概念，上下文有这几个特点：</p>
-
-<ul>
-  <li>每个生成消费者有自己的上下文</li>
-  <li>上下文是会被继承的</li>
-</ul>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZkZKak51cXFFTTRZbWMwTTQ5eVM2MzNWTElTR1ozMGtFV256MkZpYnZ6M1U0eFlScktFdDEzVkEvNjQwP3d4X2ZtdD1qcGVnJnRwPXdlYnAmd3hmcm9tPTUmd3hfbGF6eT0xJnd4X2NvPTE.webp" alt="img" /></p>
-
-<p>举一个例子，假如我们现在所有的生产者的topic加上一个公共前缀，那么我们只需要在生产者根上下文中的topic加上这个前缀的内容，所有的生产者都会有这个前缀。</p>
-
-<p>事实上在Stargate2.0开始提供扩展功能后，我停止了对core项目的功能迭代，所有的新功能以插件方式在一个名为SG1的项目的发布，而每个用户也可以扩展自己的插件上传到SG1中，以此期望形成一个生态。</p>
-
-<h4 id="多环境多节点部署">多环境多节点部署</h4>
-
-<p>另外在云片国际版YCloud上线之后我们又有一些新的挑战，YCloud主要服务海外客户我们的服务器并不在国内，但是我们的消息需要提交回国内节点消费，而且MQ都部署在国内，从香港节点到国内节点的延时让人无法接受，因为这个延时是用户能感知到的，所以我的目标是把这个延时交给消费者来承担。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZmxoaWJSdTlKOFNpYkpxTHQ4VDdnbVdRTHFNcHBlbXFqSmljRmhpYXdBemg4NWRqZHFjcFowTWdsdEEvNjQwP3d4X2ZtdD1qcGVnJnRwPXdlYnAmd3hmcm9tPTUmd3hfbGF6eT0xJnd4X2NvPTE.webp" alt="img" /></p>
-
-<p>如果简单的在部署一套集群或许实施起来是最快的，但是这样成本非常大，而且消费者1和消费者2的负载通常是不均衡的，如果有了第三的机房，难道每个消费者都要部署3套？</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZmNNNnBFSXRZUDRvdVliRHZDM2ljcW9IVndPMWhuYmdKWmVpY2ljUmd3aWFDbEFjMkp5RXNpYXJQT2ljdy82NDA_d3hfZm10PWpwZWcmdHA9d2VicCZ3eGZyb209NSZ3eF9sYXp5PTEmd3hfY289MQ.webp" alt="img" /></p>
-
-<p>所以我们的方向是在香港节点部署一个broker，重写客户端的队列选择器，让生产者找出离自己最近的broker中的队列，而消费者消费所有队列。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZnlaUGhXRERURkRJaWFWVFFlMHlKV1pWZ3VSMmptTnROV1hWTWlhbnVlNjVJZUZpYk1BRTlJbTM1QS82NDA_d3hfZm10PWpwZWcmdHA9d2VicCZ3eGZyb209NSZ3eF9sYXp5PTEmd3hfY289MQ.webp" alt="img" /></p>
-
-<p>其实这里对应消费者也是一样的，我们可以通过改变消费者的客户端负载均衡器来消费指定的队列，这样我们就能实现一个隔离的环境。</p>
-
-<p>在后续的发展中我们将消费者使用同样的方式去指定消费指定的broker上的队列，于是就形成了图中这样的隔离的环境，这样做的好处是：</p>
-
-<ul>
-  <li>多个环境隔离正常消息不互通，达到隔离的目标</li>
-  <li>多个环境的broker仍然是一体的，如果一个消费者出现故障，另一个消费者可以代替</li>
-</ul>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZktUcjVpYTlVcmdMQklLR2tsYlUxSDZtNW11MFJudEVUSzZpYUtlSzIzYzQ0QUp1WkxPVHRkcWtRLzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp" alt="img" /></p>
-
-<p>如果发现消费者1出现异常的话，可以临时让消费者2代替消费者1的工作保证功能正常，但是目前来说这部分功能仍然无法实现，应为我们需求有一个指挥中心告诉消费者2去消费环境1的消息。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZkFQcmFJRnpSVmNWZ0RncG1mTUFETE5pY1k1SXR6MDhpY0xEenlKNzgwbXVmYlNWaWFkNFNrbGY0US82NDA_d3hfZm10PWpwZWcmdHA9d2VicCZ3eGZyb209NSZ3eF9sYXp5PTEmd3hfY289MQ.webp" alt="img" /></p>
-
-<h3 id="未来规划">未来规划</h3>
-
-<p>为了实现生产者消费者之间的协作，我们需要一个指挥中心，去收集和协调全部Stargate应用的工作。</p>
-
-<p><img src="../img/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X2pwZy90bmRMWERaUkpSYUo0OEtEV3Q5djZ6dU51ektSWjYwZk9UMGlhaWJ2Vk1TTllkc2tITmdFdHFrUFJqaWNLNlhNck9IdDhkcXVWSTFYaWJoWmlhUEg1eHRJdlhRLzY0MD93eF9mbXQ9anBlZyZ0cD13ZWJwJnd4ZnJvbT01Jnd4X2xhenk9MSZ3eF9jbz0x.webp" alt="img" /></p>
-
-<p>StargateCommand会充当一个指挥中心，但是它只是一个协调机制，如果没有它Stargate应用仍然会按照其原型设定的方式去运行。</p>]]></content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="消息队列" /><summary type="html"><![CDATA[云片由于其业务特点对应消息队列的使用十分频繁，这里以云片短信业务为例，短信业务的逻辑十分简单，我们只看主流程，本质就是接受用户请求，寻找合适的通道，使用cmpp/smpp协议提交给运营商。]]></summary></entry></feed>
+<p>在面对这样的业务时，容易犯错就是将关注点本身放到售后单本身而不是售后业务本身，容易忽略一个事情就是，售后单本质上是现实生活中的人们为了更好的进行售后，而将售后业务抽象后产生的某种产物，售后单本身已经为我们实现售后功能做了很多工作，但是千万不能忘记一点，把关注点放到业务而不是数据，像售后单的状态代表的是当前售后处在什么环节，而不是真的表示这个售后单是什么状态。</p>]]></content><author><name>凯帆</name><email>z@zhoukaifan.com</email></author><category term="业务架构" /><summary type="html"><![CDATA[背景 这两周为公司开发一个售后功能，开发完成后带来的思考 关于售后单创建流程的思考： 在实际的业务中不管是生鲜还是快递的售后单他们存在一定的共性，即某一商家对某一买家对于某次交易中出现的纠纷处理过程的记录，我们称为售后单。售后单的意义在于如何更好的支撑售后这一业务，而不是售后单本身。——售后单的本质和作用]]></summary></entry></feed>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>如何提高业务代码的可读性 | Kaifan&amp;Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="如何提高业务代码的可读性" />
+<meta name="author" content="凯帆" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="背景" />
+<meta property="og:description" content="背景" />
+<link rel="canonical" href="/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7" />
+<meta property="og:url" content="/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7" />
+<meta property="og:site_name" content="Kaifan&amp;Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-12-31T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="如何提高业务代码的可读性" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"凯帆","url":"https://www.zhoukaifan.com"},"dateModified":"2024-12-31T00:00:00+08:00","datePublished":"2024-12-31T00:00:00+08:00","description":"背景","headline":"如何提高业务代码的可读性","mainEntityOfPage":{"@type":"WebPage","@id":"/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7"},"url":"/2024-12-31/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%AF%E8%AF%BB%E6%80%A7"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"/>
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"> -->
+
+  <!-- RSS -->
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Kaifan&amp;Blog" />
+
+  <!-- Google Analytics-->
+  
+
+
+  <!-- 百度统计 -->
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?c441094a03e224f52920af74485f3482";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+</head>
+
+
+  <body>
+
+    <nav class="nav">
+  <div class="nav-container">
+    <a href="/">
+      <h2 class="nav-title">Kaifan&Blog</h2>
+    </a>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      <li><a href="/thinking/">Thinking</a></li>
+      <!-- <li><a href="/reading/">Reading</a></li> -->
+      <li><a href="/about/">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <main>
+      <div class="post">
+  <div class="post-info">
+    <span>Written by</span>
+    
+        凯帆
+    
+
+    
+      <br>
+      <span>发布于&nbsp;</span><time datetime="2024-12-31 00:00:00 +0800">2024年12月31日</time>
+    
+  </div>
+
+  <h1 class="post-title">如何提高业务代码的可读性</h1>
+  <div class="post-line"></div>
+
+  <h3 id="背景">背景</h3>
+
+<p>​	最近看了一些系统的历史代码，直观感受是很乱，不知道原有逻辑再做什么，也不知道新逻辑写在什么地方合适，来来回回还是自己加一个先对独立的逻辑实现需求，这样就更加混乱了。单看某个模块其实代码结构上是有很多用心设计的样子的，所以一直想弄清楚系统为什么变复杂了。目前有了一点阶段性的结论，先整理一下。</p>
+
+<p>​	这里我不再考虑一些概念性的东西，像封装、继承、多态这些，或者是一些基本原则。这些所有人都能很好的说出来并且应用，我从最表面的代码结构来讨论一下。首先系统的代码维护，这是一个工程，我们的目标很明确就是持续迭代。迭代一个系统最基本的是“看得懂”，然后才是“怎么写”。而编写好的代码的判断指标之一就是“可读性”，也就是后人如何“看得懂”。所以本文主要就来讨论业务系统中的代码可读性。最后顺便考虑一下最近说的单元测试。</p>
+
+<h3 id="业务系统的可读性">业务系统的可读性</h3>
+
+<p>​	想要让大家更好的读懂业务代码，我们首先要弄清楚大家的关注点是什么。</p>
+
+<ul>
+  <li>业务系统核心是业务流程（注意这里是流程不是某个功能的细节）。</li>
+  <li>其次是系统的外部依赖。</li>
+  <li>然后会关注一个业务模型（数据）的作用范围</li>
+  <li>至于某个功能点的细节只有修改涉及到的时候才会去关注。</li>
+</ul>
+
+<p>​	我在举个例子，以我现在正在开发的电梯估价接口来说。如果后续有人要在电梯上开发一个新功能，评估改动的时候肯定会有如下的流程：</p>
+
+<ul>
+  <li>得到产品需求，知道业务什么样</li>
+  <li>先弄清楚电梯估价接口到底做了什么事情，能不能和业务对应上</li>
+  <li>有什么事情是HomePage做的什么，什么是下游提供的</li>
+  <li>电梯里面的SkuEntity模型到底什么地方用了，我的改动会不会有什么影响</li>
+  <li>如果我要改盒子逻辑，盒子依赖了什么数据，具体怎么实现，有什么细节要关注</li>
+</ul>
+
+<p>​	其实可以发现阅读业务代码的时候是有一个关注度的。不同的层级关注的东西不一样，那么顺应这个阅读流程的代码可读性就会很强。</p>
+
+<h4 id="代码举例">代码举例</h4>
+
+<p>​	我们来看下这个application层的代码，这是一个Service中的代码。</p>
+
+<pre><code class="language-Java">public ValuatePriceElevatorEntity productCenterElevatorValuatePrice(ValuateDemandEntity valuateDemandEntity) {
+				//异步流程最大时间 product.center.elevator.valuate.price.async.timeout
+        //估价开始前先记录时间，这样如果整个接口耗时过大，就不等异步流程返回了。有利于控制整体耗时。所以这是一个兜底的超时控制
+        long timeOut = System.currentTimeMillis()+ApolloConfigUtil.getLongProperty(ApolloConstants.PRODUCT_CENTER_ELEVATOR_VALUATE_PRICE_ASYNC_TIMEOUT,4000L);
+
+        List&lt;String&gt; goodsSkuList = operatePlatformService.getElevatorValuatePriceGoodsSkuConfig();
+        valuateDemandEntity.setGoodsSkuList(goodsSkuList);
+
+        //查询用户首单信息
+        CompletableFuture&lt;PassengerFirstOrderInfoVO&gt; passengerFirstOrderInfoVOCompletableFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return userInfoService.queryPassengerFirstOrderInfo(valuateDemandEntity.getUserNewId());
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+        //用户选择偏好
+        CompletableFuture&lt;PassengerUserPreferencesInfoVO&gt; passengerUserPreferencesInfoVOFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return userInfoService.queryPassengerUserPreferencesInfo(valuateDemandEntity.getUserNewId());
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+
+        valuateDemandEntity.fillDefaultValueIfNull();
+        //估价模块
+        List&lt;SkuPriceInfo&gt; skuPriceInfoList = asyncValuate(valuateDemandEntity);
+        ValuatePriceElevatorEntity valuatePriceElevatorEntity = ValuatePriceElevatorFactory.createElevatorEntity(valuateDemandEntity,skuPriceInfoList);
+
+        //获取地图使用什么业务线的配置
+        ElevatorValuatePricePathPlanBizConfig elevatorValuatePricePathPlanBizConfig = operatePlatformService.getElevatorValuatePricePathPlanBizConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getUserNewId());
+        valuatePriceElevatorEntity.fillPathPlanByBizCode(elevatorValuatePricePathPlanBizConfig.getPathPlanBizCodeEnum());
+        valuatePriceElevatorEntity.fillDemandInfo();
+
+        //异步查询举手率
+        List&lt;String&gt; skuCodeList = valuatePriceElevatorEntity.parseAllSkuCodeList();
+        CompletableFuture&lt;List&lt;TaxiBottomSkuHandUpRateInfo&gt;&gt; taxiBottomSkuHandUprRateCompletableFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return userInfoService.getTaxiBottomSkuHandUprRate(
+                    valuateDemandEntity.getStartPosition().getCityCode(),
+                    Long.valueOf(valuateDemandEntity.getDistance()),
+                    skuCodeList);
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+        //价敏系数
+        CompletableFuture&lt;String&gt; elasticityScoreCompletableFuture = CompletableFutureUtils.supplyAsyncSimple(() -&gt; {
+            return extractElasticityScore(valuateDemandEntity, new ArrayList&lt;&gt;(skuPriceInfoList));
+        }, ThreadPools.getProductCenterElevatorValuatePricePoolInstance());
+
+        //品类过滤配置
+        ElevatorValuatePriceSkuFilterConfig elevatorValuatePriceSkuFilterConfig = operatePlatformService.getElevatorValuatePriceSkuFilterConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getDistance(),
+                valuateDemandEntity.getStartPlanStartTime(),
+                valuateDemandEntity.getInstantType(),
+                valuateDemandEntity.isCrossCity(),
+                valuateDemandEntity.getUserNewId());
+        if (elevatorValuatePriceSkuFilterConfig!=null) {
+            valuatePriceElevatorEntity.filterSkuBySkuList(elevatorValuatePriceSkuFilterConfig.getFilterSkuList());
+        }
+
+        //品类卡片配置
+        Map&lt;String,ElevatorValuatePriceSkuCardConfig&gt; elevatorValuatePriceSkuCardConfigMap = operatePlatformService.getElevatorValuatePriceSkuCardConfigMap(
+                valuateDemandEntity.getUserNewId(),
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuatePriceElevatorEntity.parseAllSkuCodeList());
+
+        //运力不可选状态，归类到不可选模块
+        ProductCenterValuatePriceTimeConfig productCenterValuatePriceTimeConfig = operatePlatformService.getProductCenterValuatePriceTimeConfig(
+                valuateDemandEntity.getUserNewId(),
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getEndPosition().getCityCode());
+        valuatePriceElevatorEntity.groupSkuForUnavailable(productCenterValuatePriceTimeConfig,elevatorValuatePriceSkuCardConfigMap);
+
+        //附近无车聚类
+        ElevatorValuatePriceSkuNoCarConfig elevatorValuatePriceSkuNoCarConfig = operatePlatformService.getElevatorValuatePriceSkuNoCarConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getDistance(),
+                valuateDemandEntity.getStartPlanStartTime(),
+                valuateDemandEntity.getUserNewId());
+        if (elevatorValuatePriceSkuNoCarConfig!=null) {
+            List&lt;TaxiBottomSkuHandUpRateInfo&gt; taxiBottomSkuHandUprRate = CompletableFutureUtils.getTimeOutForTime(taxiBottomSkuHandUprRateCompletableFuture, new ArrayList&lt;&gt;(), timeOut);
+            valuatePriceElevatorEntity.groupSkuForNoCar(elevatorValuatePriceSkuNoCarConfig,taxiBottomSkuHandUprRate,elevatorValuatePriceSkuCardConfigMap);
+        }
+        //品类正常聚类成电梯，包含盒子逻辑
+        PassengerFirstOrderInfoVO passengerFirstOrderInfoVO = CompletableFutureUtils.getTimeOutForTime(passengerFirstOrderInfoVOCompletableFuture, PassengerFirstOrderInfoVO.defaultVO, timeOut);
+        Boolean phFirstOrder = passengerFirstOrderInfoVO.getPhFirstOrder();
+        List&lt;ElevatorValuatePriceSkuGroupConfig&gt; elevatorValuatePriceSkuGroupConfigList = operatePlatformService.getElevatorValuatePriceSkuGroupConfig(
+                valuateDemandEntity.getStartPosition().getCityCode(),
+                valuateDemandEntity.getDistance(),
+                valuateDemandEntity.getStartPlanStartTime(),
+                valuateDemandEntity.getInstantType(),
+                phFirstOrder,
+                valuateDemandEntity.isCrossCity(),
+                valuateDemandEntity.getAdSource(),
+                valuateDemandEntity.getUserNewId());
+        if (CollectionUtils.isNotEmpty(elevatorValuatePriceSkuGroupConfigList)) {
+            valuatePriceElevatorEntity.groupAllSkuAndSkuBox(elevatorValuatePriceSkuGroupConfigList,elevatorValuatePriceSkuCardConfigMap);
+        }
+        //剩余的品类聚类成其他模块
+        valuatePriceElevatorEntity.groupOtherSku(elevatorValuatePriceSkuCardConfigMap);
+
+        //将电梯进行排序
+        valuatePriceElevatorEntity.sort();
+}
+</code></pre>
+
+<p>这个逻辑其实挺长的，有小一百行了。但是仔细看一遍后是可以快速理解的。原因如下</p>
+
+<ul>
+  <li>
+    <p>电梯相关的业务流程已经全部表达清楚了</p>
+  </li>
+  <li>
+    <p>功能点的执行都是在Entity内部如valuatePriceElevatorEntity.groupOtherSku，Entity内部不会有远程调用，每个功能点的数据依赖都是非常明确的</p>
+  </li>
+  <li>
+    <p>外部的数据来源，配置、下游服务、依赖的领域服务（看注释），都是非常明确的。外部依赖的入参也是明确的基本字段。</p>
+
+    <ul>
+      <li>
+        <blockquote>
+          <p>注释：领域服务不在本文中说明 ，这是DDD的概念，这是用来封装复用的手段，需要抽象逻辑，不是存粹用来简化service层代码的。</p>
+        </blockquote>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>数据使用范围如首单phFirstOrder变量被什么功能用了一眼就能看清楚，怎么来的也很清楚。并且使用范围不会逃出这个方法。被Entity使用后由于Entity没有外部调用是纯粹的功能点，后续也好维护。</p>
+  </li>
+</ul>
+
+<h4 id="代码反例">代码反例</h4>
+
+<p>这里我再修改一下代码，大家看下对可读性的影响</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">productCenterElevatorValuatePrice</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">)</span> <span class="o">{</span>
+  <span class="o">...............</span>
+        <span class="c1">//附近无车聚类</span>
+        <span class="nc">ElevatorValuatePriceSkuNoCarConfig</span> <span class="n">elevatorValuatePriceSkuNoCarConfig</span> <span class="o">=</span> <span class="n">operatePlatformService</span><span class="o">.</span><span class="na">getElevatorValuatePriceSkuNoCarConfig</span><span class="o">(</span><span class="n">valuateDemandEntity</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">elevatorValuatePriceSkuNoCarConfig</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">List</span><span class="o">&lt;</span><span class="nc">TaxiBottomSkuHandUpRateInfo</span><span class="o">&gt;</span> <span class="n">taxiBottomSkuHandUprRate</span> <span class="o">=</span> <span class="nc">CompletableFutureUtils</span><span class="o">.</span><span class="na">getTimeOutForTime</span><span class="o">(</span><span class="n">taxiBottomSkuHandUprRateCompletableFuture</span><span class="o">,</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(),</span> <span class="n">timeOut</span><span class="o">);</span>
+            <span class="n">valuatePriceElevatorEntity</span><span class="o">.</span><span class="na">groupSkuForNoCar</span><span class="o">(</span><span class="n">elevatorValuatePriceSkuNoCarConfig</span><span class="o">,</span><span class="n">taxiBottomSkuHandUprRate</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+        <span class="o">}</span>
+  			<span class="n">groupSku</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+        <span class="c1">//将电梯进行排序</span>
+        <span class="n">valuatePriceElevatorEntity</span><span class="o">.</span><span class="na">sort</span><span class="o">();</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">groupSku</span><span class="o">(</span><span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span><span class="o">,</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="n">valuatePriceElevatorEntity</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">//剩余的品类聚类成其他模块</span>
+        <span class="n">groupOtherSku</span><span class="o">(</span><span class="n">valuatePriceElevatorEntity</span><span class="err">，</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span><span class="o">,</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//品类正常聚类成电梯，包含盒子逻辑</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuGroupConfigList</span> <span class="o">=</span> <span class="n">operatePlatformService</span><span class="o">.</span><span class="na">getElevatorValuatePriceSkuGroupConfig</span><span class="o">(</span><span class="n">valuateDemandEntity</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">CollectionUtils</span><span class="o">.</span><span class="na">isNotEmpty</span><span class="o">(</span><span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">))</span> <span class="o">{</span>
+  <span class="c1">//聚类 逻辑直接在service中实现</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="nc">ValuatePriceElevatorEntity</span> <span class="nf">groupOtherSku</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">//剩余的品类聚类成其他模块</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//operatePlatformService</span>
+<span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="nf">getElevatorValuatePriceSkuGroupConfig</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">){</span>
+  <span class="c1">//mapStruct转换</span>
+  			<span class="nc">FeatureGetParam</span> <span class="n">featureGetParam</span> <span class="o">=</span> <span class="n">valuateDemandEntityToParam</span><span class="o">(</span><span class="n">valuateDemandEntity</span><span class="o">)</span>
+        <span class="nc">Boolean</span> <span class="n">phFirstOrder</span> <span class="o">=</span> <span class="n">aiBrainQuadFeatureFacade</span><span class="o">.</span><span class="na">getFirstOrderFeature</span><span class="o">(</span><span class="n">featureGetParam</span><span class="o">);</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">configList</span> <span class="o">=</span> <span class="nc">PHRuleSDK</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="no">USER_GROWTH</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">getObjectList</span><span class="o">(</span><span class="nc">Consts</span><span class="o">.</span><span class="na">OperationPlatform</span><span class="o">.</span><span class="na">ELEVATOR_VALUATE_SKU_GROUP_CONFIG</span><span class="o">,</span>
+                        <span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+                        <span class="n">cityCode</span><span class="o">,</span>
+                        <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(),</span>
+                        <span class="n">userNewId</span><span class="o">,</span>
+                        <span class="kc">null</span><span class="o">);</span>
+        <span class="k">if</span><span class="o">(</span><span class="nc">CollectionUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">configList</span><span class="o">)){</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="n">configs</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span> <span class="nl">config:</span><span class="n">configList</span><span class="o">){</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">usable</span><span class="o">(</span><span class="n">distance</span><span class="o">,</span><span class="n">planStartTime</span><span class="o">,</span><span class="n">instantType</span><span class="o">,</span><span class="n">adSource</span><span class="o">,</span><span class="n">crossCity</span><span class="o">,</span><span class="n">phFirstOrder</span><span class="o">)){</span>
+                <span class="n">configs</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">configs</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>初步看下来productCenterElevatorValuatePrice中的逻辑一样简洁，但是评估需求改动的时候通常不敢下定论</p>
+
+<ul>
+  <li>getElevatorValuatePriceSkuGroupConfig的依赖返回很大，里面还有远程调用。</li>
+  <li>featureGetParam的转换逻辑也要确认才能明确数据的依赖范围</li>
+  <li>groupSku也是一个service，可能有外部依赖，并且直接依赖了Entity</li>
+  <li>再下层的groupAllSkuAndSkuBox也是一个service</li>
+</ul>
+
+<p>修改后的代码或许再编写的时候不会有什么问题，每个功能点分了模块，都依赖entity。但是在后续评估改动范围和阅读的时候存在了很多困扰，另外随着迭代调用深度会加大，数据的使用范围会难以控制，且外部调用进一步隐藏难以发现。最后只能询问谁熟悉这块逻辑。其实熟悉的不是业务，而是代码结构和数据的作用范围，业务通常用语言能解释。但是代码中的一些细节和其导致的业务默认行为是难以理解的。</p>
+
+<h3 id="业务代码的单元测试">业务代码的单元测试</h3>
+
+<p>​	因为目前在推进单元测试，所以这里顺便从代码结构的角度说一下单元测试的落地。我们分别从上述的例子1和2来编写单元测试看一下效果。</p>
+
+<h4 id="例子1单元测试">例子1单元测试</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">filterSkuBySkuListTest</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span> <span class="o">=</span> <span class="n">mock数据</span>
+
+        <span class="nc">ElevatorValuatePriceSkuFilterConfig</span> <span class="n">elevatorValuatePriceSkuFilterConfig</span> <span class="o">=</span> <span class="n">mock数据</span>
+
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span> <span class="o">=</span> <span class="n">mock数据</span>
+        
+       <span class="c1">//执行单测</span>
+          <span class="n">valuatePriceElevatorEntity</span><span class="o">.</span><span class="na">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="n">elevatorValuatePriceSkuGroupConfigList</span><span class="o">,</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+      
+      <span class="c1">//校验结果valuatePriceElevatorEntity</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="例子2单元测试">例子2单元测试</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">filterSkuBySkuListTest</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ValuatePriceElevatorEntity</span> <span class="n">valuatePriceElevatorEntity</span> <span class="o">=</span> <span class="n">mock数据</span>
+          
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">ElevatorValuatePriceSkuCardConfig</span><span class="o">&gt;</span> <span class="n">elevatorValuatePriceSkuCardConfigMap</span> <span class="o">=</span> <span class="n">mock数据</span>
+          
+          <span class="c1">//groupAllSkuAndSkuBox中有外部依赖，需要mock</span>
+        <span class="nc">MockOperatePlatformService</span> <span class="n">mockOperatePlatformService</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MockOperatePlatformService</span><span class="o">();</span>
+        <span class="n">service</span><span class="o">.</span><span class="na">setOperatePlatformService</span><span class="o">(</span><span class="n">mockOperatePlatformService</span><span class="o">);</span>
+      
+       <span class="c1">//执行单测</span>
+       <span class="n">service</span><span class="o">.</span><span class="na">groupAllSkuAndSkuBox</span><span class="o">(</span><span class="n">valuatePriceElevatorEntity</span><span class="err">，</span><span class="n">elevatorValuatePriceSkuCardConfigMap</span><span class="o">);</span>
+     
+      
+      <span class="c1">//校验结果valuatePriceElevatorEntity</span>
+    <span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">MockOperatePlatformService</span> <span class="kd">extends</span> <span class="nc">OperatePlatformService</span> <span class="o">{</span>
+  <span class="c1">//operatePlatformService</span>
+  <span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ElevatorValuatePriceSkuGroupConfig</span><span class="o">&gt;</span> <span class="nf">getElevatorValuatePriceSkuGroupConfig</span><span class="o">(</span><span class="nc">ValuateDemandEntity</span> <span class="n">valuateDemandEntity</span><span class="o">){</span>
+    <span class="c1">//mock数据</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>​	这里可以看到例子2的单元测试的成本是更高的，如果有大量的外部依赖，或者调用链路太深，单元测试难以执行。另外OperatePlatformService如果出现改动，对单元测试影响就更大，例子1依赖的是config实体，他的改动可能性远比service方法定义的改动低的多。</p>
+
+<p>​	业务中变动的逻辑主要还是功能点，复杂逻辑和业务细节也是功能点，所以单元测试也应该集中在功能点的测试。那么相对独立且明确数据依赖的功能点对单元测试是有利的。</p>
+
+<h3 id="总结">总结</h3>
+
+<p>​	其实总结一下，业务代码可读性的核心在于编码时考虑阅读业务代码的思路，把关注点在代码的第一层级中直接表现出来。代码的可读性要多考虑系统的目的，如果业务系统偏向中台或者平台，那这种流程式的代码结构是否适用有待讨论。而对于中间件或者工具，其标准也是不同的，本文主要讨论业务系统的可读性。</p>
+
+<p>​	另外关于设计模式对业务代码可读性的影响也需要进一步讨论，有时候为了扩展性导致核心业务流程被隐藏，是否是值得的。</p>
+
+<p>​	个人认为业务代码需要足够简单，流程化。然后将数据与使用数据的业务功能归到一起，对于后续功能的扩展之前修改对应代码即可，只要业务代码足够简洁明了，并不需要过多的扩展性设计。核心在于更清晰的表达业务，和限定数据使用范围。</p>
+
+
+</div>
+
+
+
+<div class="pagination">
+  
+  
+    <a href="/2021-06-05/DDD%E5%9C%A8%E4%B8%AD%E5%8F%B0%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5" class="right arrow">下一篇&#8594;</a>
+  
+
+  <a href="#" class="top">Top</a>
+</div>
+    </main>
+
+    <footer>
+  <span>
+    &copy; <time datetime="2025-01-03 23:41:57 +0800">2025</time> 凯帆. Made with Jekyll using the Tale theme.
+  </span>
+</footer>
+
+  </body>
+</html>
